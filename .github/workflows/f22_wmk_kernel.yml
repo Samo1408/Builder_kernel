@@ -1,4 +1,4 @@
-name: Build SusFS Kernel
+name: Build F22 SusFS Kernel
 on:
   workflow_dispatch:
     inputs:
