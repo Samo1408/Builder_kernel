@@ -53,8 +53,13 @@ jobs:
         if [[ "${{ github.event.inputs.NEW_CLANG }}" = "true" ]]; then
           #URL="https://android.googlesource.com/platform/prebuilts/clang/host/linux-x86/+archive/refs/tags/android-u-beta-1-gpl/clang-r458507.tar.gz"
           echo "INFO: Downloading newer clang"
-          aria2c https://android.googlesource.com/platform/prebuilts/clang/host/linux-x86/+archive/refs/heads/main/clang-r547379.tar.gz
-          mkdir clang && mv *.gz clang && cd clang && tar -xf *.gz && rm *.gz
+          #aria2c https://android.googlesource.com/platform/prebuilts/clang/host/linux-x86/+archive/refs/heads/main/clang-r547379.tar.gz
+          #mkdir clang && mv *.gz clang && cd clang && tar -xf *.gz && rm *.gz
+          
+        aria2c https://github.com/Samsung-MT6769-Devs/toolchain/releases/download/clang-21-f8df24015ae2e3c76673c2c9d7a6e4201a68bebd/clang-21-wmk.tar.zst
+        zstd --decompress clang-21-wmk.tar.zst
+        tar xf clang-21-wmk.tar
+        mv clang-wmk clang
           cd ../..
         else
           curl -LSs "https://raw.githubusercontent.com/rsuntk/toolchains/refs/heads/README/clone.sh" | bash -s clang-12
@@ -124,20 +129,7 @@ jobs:
         buildDetails="`make kernelversion`-`echo $DEVICE`_`echo $gitsha1`-`date +'%Y%m%d%H%M%S'`" && echo "buildDetails=$buildDetails" >> $GITHUB_OUTPUT
       working-directory: kernel_root
       
-    - name: Upload config
-      uses: actions/upload-artifact@v4
-      with:
-        name: Config-${{ steps.buildKernel.outputs.buildDetails }}
-        path: kernel_root/out/build_config.txt
-        
-    - name: Upload artifacts
-      uses: actions/upload-artifact@v4
-      with:
-        name: Build-${{ steps.buildKernel.outputs.buildDetails }}
-        path: |
-          kernel_root/out/arch/arm64/boot/*.gz
-          kernel_root/out/arch/arm64/boot/dts/mediatek/*.dtb
-
+ 
     - name: Upload AnyKernel3
       uses: actions/upload-artifact@v4
       with:
@@ -145,18 +137,7 @@ jobs:
         path: kernel_root/AnyKernel3/*
         compression-level: 9
         
-    - name: Upload to Telegram
-      if: github.event.inputs.UPLOAD_TO_TG == 'true'
-      env:
-        CHAT_ID: ${{ secrets.CHAT_ID }}
-        BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
-      run: |
-        if [ ! -z "${{ secrets.BOT_TOKEN }}" ]; then
-          ZIP=$(find `pwd` -name "*.zip")
-          git clone https://github.com/rsuntk/rsuntkBotScript.git --depth=1 i && cp ./i/* . && rm -rf i
-          bash $(pwd)/rsuntkbot.sh $ZIP "`cat buildDetails.txt`"
-        fi
-      working-directory: kernel_root
+    
         
     - name: Strip LKMs
       if: github.event.inputs.UPLOAD_LKM == 'true'
