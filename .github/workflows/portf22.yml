@@ -43,7 +43,7 @@ jobs:
 
     - name: Clone F22 drivers
       run:
-        git clone --depth=1 --single-branch https://github.com/Samo141988/kernel_samsung_f22_wmk_rebased.git -b drivers
+        git clone --depth=1 --single-branch https://github.com/Samo141988/wmkf22.git -b drivers
     
     - name: Prepare dependencies
       run: sudo apt update && sudo apt install -y ccache
