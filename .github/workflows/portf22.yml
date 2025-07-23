@@ -41,19 +41,15 @@ jobs:
         show-progress: false
         fetch-depth: 1
 
+    - uses: actions/checkout@v4
+      name: Clone F22 drivers
+      with:
+       repository: 'Samo141988/wmkf22'
+       ref: 'drivers'
+       path: 'kernel_root/drivers'
+       fetch-depth: 1
     
-    - name: Merge drivers with existing files
-      run: |
-        cd kernel_root
-         git init
-         git remote add f22repo https://github.com/Samo141988/wmkf22.git
-         git fetch --depth 1 f22repo drivers
-         git checkout -b f22_drivers f22repo/drivers
-          # دمج الملفات مع الحفاظ على الموجود
-         git checkout --orphan temp_branch
-         git add -A
-         git commit -m "Preserve existing files"
-         git merge f22_drivers --allow-unrelated-histories
+    
     - name: Prepare dependencies
       run: sudo apt update && sudo apt install -y ccache
         
