@@ -43,7 +43,7 @@ jobs:
 
     - name: Clone F22 drivers
       run:
-        git clone --depth=1 --single-branch https://github.com/Samo141988/wmkf22.git -b drivers drivers
+        git clone --depth=1 --single-branch https://github.com/Samo141988/wmkf22.git -b drivers $(pwd)/out/drivers
         
     - name: Prepare dependencies
       run: sudo apt update && sudo apt install -y ccache
