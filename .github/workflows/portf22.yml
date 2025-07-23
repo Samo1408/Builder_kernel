@@ -43,7 +43,7 @@ jobs:
 
     - name: Clone F22 drivers
       run:
-        git clone --depth=1 --single-branch https://github.com/Samo141988/wmkf22.git -b drivers
+        git clone --depth=1 --single-branch https://github.com/Samo141988/wmkf22.git -b drivers drivers
         
     - name: Prepare dependencies
       run: sudo apt update && sudo apt install -y ccache
@@ -53,9 +53,7 @@ jobs:
       run: |
           sudo apt install zstd bc cpio flex bison aptitude git python-is-python3 tar perl wget aria2 curl lz4 -y
           sudo aptitude install libssl-dev -y
-          cd kernel_root
-          mv wmkf22 drivers
-          cd kernel_root
+          
           mkdir -p ~/.cache/bazel
           ccache --version
           ccache --max-size=8G
