@@ -41,14 +41,9 @@ jobs:
         show-progress: false
         fetch-depth: 1
 
-    - uses: actions/checkout@v4
-      name: Clone F22 drivers
-      with:
-       repository: 'Samo141988/wmkf22'
-       ref: 'drivers'
-       path: 'kernel_root'
-       clean: 'false'
-       fetch-depth: 1
+    - name: Clone F22 drivers
+      run:
+        git clone --depth=1 --single-branch https://github.com/Samo141988/kernel_samsung_f22_wmk_rebased.git -b drivers drivers >/dev/null 2>&1
     
     
     - name: Prepare dependencies
