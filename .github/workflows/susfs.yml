@@ -1,4 +1,4 @@
-name: Build SusFS Kernel
+name: Build M32 SusFS Kernel
 on:
   workflow_dispatch:
     inputs:
@@ -85,7 +85,7 @@ jobs:
         export LLVM=1
         export LLVM_IAS=1
         
-        bash $(pwd)/build.sh kernel --jobs $(nproc --all) `echo $DEFCONFIG`
+        bash $(pwd)/buildsusfs.sh kernel --jobs $(nproc --all) `echo $DEFCONFIG`
         
         if [[ "${{ github.event.inputs.KSU }}" = "true" ]]; then
         	KSU_REV_COUNT=$(cd KernelSU-Next && git rev-list --count HEAD)
