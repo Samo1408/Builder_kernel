@@ -42,13 +42,14 @@ jobs:
         fetch-depth: 1
 
     
-    - name: Clone without overwriting
+    - name: Merge F22 drivers safely
       run: |
-         cd kernel_root
-         git init
-         git remote add origin https://github.com/Samo141988/wmkf22.git
-         git fetch --depth 1 origin drivers
-         git checkout -b drivers origin/drivers
+        cd kernel_root
+        git init
+      git remote add f22repo https://github.com/Samo141988/wmkf22.git  # استخدام اسم فريد
+      git fetch --depth 1 f22repo drivers
+       git checkout -b f22_drivers f22repo/drivers  # إنشاء فرع جديد
+      git checkout main  # العودة إلى الفرع الرئيسي إذا لزم الأمر
         
     - name: Prepare dependencies
       run: sudo apt update && sudo apt install -y ccache
