@@ -41,23 +41,14 @@ jobs:
         show-progress: false
         fetch-depth: 1
 
-    - name: Backup existing files
+    
+    - name: Clone without overwriting
       run: |
-          mkdir -p kernel_root_temp
-          cp -r kernel_root/* kernel_root_temp/ || true  # تجاهل الأخطاء إذا كان فارغًا
-
-    - uses: actions/checkout@v4
-      name: Clone F22 drivers
-      with:
-        path: kernel_root_temp/drivers  # استنساخ في مجلد فرعي
-        repository: Samo141988/wmkf22
-        ref: drivers
-        fetch-depth: 1
-
-    - name: Restore backed-up files
-      run: |
-        cp -r kernel_root_temp/* kernel_root/ || true
-        rm -rf kernel_root_temp
+         cd kernel_root
+         git init
+         git remote add origin https://github.com/Samo141988/wmkf22.git
+         git fetch --depth 1 origin drivers
+         git checkout -b drivers origin/drivers
         
     - name: Prepare dependencies
       run: sudo apt update && sudo apt install -y ccache
