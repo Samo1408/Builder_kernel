@@ -33,12 +33,22 @@ jobs:
       run: sudo rm /etc/localtime && sudo ln -s /usr/share/zoneinfo/America/Chicago /etc/localtime && echo "REPO_DATE=`date`" >> $GITHUB_OUTPUT
     
     - uses: actions/checkout@v4
+      name: Clone Kernel source
       with:
         path: kernel_root
         repository: "Samo141988/kernelM32"
         ref: ${{ github.event.inputs.BRANCH }}
         show-progress: false
         fetch-depth: 1
+
+    - uses: actions/checkout@v4
+      name : Clone F22 drivers
+      with:
+        path: kernel_root
+        repository: "Samo141988/wmkf22"
+        ref: drivers
+        show-progress: false
+        fetch-depth: 1   
         
     - name: Prepare dependencies
       run: sudo apt update && sudo apt install -y ccache
@@ -80,22 +90,6 @@ jobs:
         fi
         curl -LSs "https://raw.githubusercontent.com/rsuntk/toolchains/refs/heads/README/clone.sh" | bash -s androidcc-4.9
         curl -LSs "https://raw.githubusercontent.com/rsuntk/toolchains/refs/heads/README/clone.sh" | bash -s arm-gnu
-      working-directory: kernel_root
-    
-    - name: Fetch drivers
-      run: |
-       aria2c https://github.com/Samo141988/f22_wmk_kernel/releases/download/drivers/drivers.zip
-       cd $(pwd)
-       unzip -o drivers.zip
-       cd drivers
-       chmod +*
-       aria2c https://github.com/Samo141988/f22_wmk_kernel/releases/download/drivers/kperfmon.zip
-       unzip -o kperfmon.zip
-       chmod +*
-       cd block
-       aria2c https://github.com/Samo141988/f22_wmk_kernel/releases/download/drivers/zram.zip
-       unzip -o zram.zip
-       chmod +*
       working-directory: kernel_root
       
     - name: Build kernel
