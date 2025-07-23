@@ -42,11 +42,12 @@ jobs:
         
     - name: Prepare dependencies
       run: sudo apt update && sudo apt install -y ccache
-        sudo apt install zstd bc cpio flex bison aptitude git python-is-python3 tar perl wget aria2 curl lz4 -y
-        sudo aptitude install libssl-dev -y
+        
         
     - name: Set up ccache
       run: |
+          sudo apt install zstd bc cpio flex bison aptitude git python-is-python3 tar perl wget aria2 curl lz4 -y
+          sudo aptitude install libssl-dev -y
           mkdir -p ~/.cache/bazel
           ccache --version
           ccache --max-size=8G
