@@ -63,8 +63,7 @@ jobs:
           ccache --version
           ccache --max-size=8G
           ccache --set-config=compression=true
-          cd $(pwd)/driver
-          mv drivers $(pwd)/drivers
+          
     
     - name: Check Disk Space Before Sync
       run: |
