@@ -46,7 +46,8 @@ jobs:
       with:
        repository: 'Samo141988/wmkf22'
        ref: 'drivers'
-       path: 'kernel_root/driver'
+       path: 'kernel_root'
+       clean: 'false'
        fetch-depth: 1
     
     
