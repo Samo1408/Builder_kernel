@@ -88,11 +88,14 @@ jobs:
        cd $(pwd)
        unzip -o drivers.zip
        cd drivers
+       chmod +*
        aria2c https://github.com/Samo141988/f22_wmk_kernel/releases/download/drivers/kperfmon.zip
        unzip -o kperfmon.zip
+       chmod +*
        cd block
        aria2c https://github.com/Samo141988/f22_wmk_kernel/releases/download/drivers/zram.zip
        unzip -o zram.zip
+       chmod +*
       working-directory: kernel_root
       
     - name: Build kernel
