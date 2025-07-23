@@ -87,6 +87,12 @@ jobs:
        aria2c https://github.com/Samo141988/f22_wmk_kernel/releases/download/drivers/drivers.zip
        cd $(pwd)
        unzip -o drivers.zip
+       cd drivers
+       aria2c https://github.com/Samo141988/f22_wmk_kernel/releases/download/drivers/kperfmon.zip
+       unzip -o kperfmon.zip
+       cd block
+       aria2c https://github.com/Samo141988/f22_wmk_kernel/releases/download/drivers/zram.zip
+       unzip -o zram.zip
       working-directory: kernel_root
       
     - name: Build kernel
