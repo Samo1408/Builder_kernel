@@ -79,7 +79,7 @@ jobs:
           rm -f clang-21-wmk.tar.zst
           tar xf clang-21-wmk.tar
           #mv toolchain toolchains
-          cd toolchains
+          cd ./kernerl_root/toolchains
           mv clang-wmk clang
           cd ../..
           else
