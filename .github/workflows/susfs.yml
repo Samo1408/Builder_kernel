@@ -8,7 +8,7 @@ on:
         required: true
       DEFCONFIG: 
         description: Defconfig
-        default: 'rsuntk_defconfig'
+        default: 'samo_defconfig'
         required: false
       KSU:
         description: Add KernelSU support
@@ -33,18 +33,36 @@ jobs:
       run: sudo rm /etc/localtime && sudo ln -s /usr/share/zoneinfo/America/Chicago /etc/localtime && echo "REPO_DATE=`date`" >> $GITHUB_OUTPUT
     
     - uses: actions/checkout@v4
+      name: Clone Kernel source
       with:
         path: kernel_root
         repository: "Samo141988/kernelM32"
         ref: ${{ github.event.inputs.BRANCH }}
         show-progress: false
         fetch-depth: 1
+
+
+        
         
     - name: Prepare dependencies
+      run: sudo apt update && sudo apt install -y ccache
+           
+        
+    - name: Set up ccache
       run: |
-        sudo apt update -y
-        sudo apt install bc cpio flex bison aptitude git python-is-python3 tar perl wget aria2 curl lz4 -y
-        sudo aptitude install libssl-dev -y
+          sudo apt install zstd bc cpio flex bison aptitude git python-is-python3 tar perl wget aria2 curl lz4 -y
+          sudo aptitude install libssl-dev -y
+          
+          mkdir -p ~/.cache/bazel
+          ccache --version
+          ccache --max-size=8G
+          ccache --set-config=compression=true
+          
+
+    - name: Check Disk Space Before Sync
+      run: |
+          echo "Disk space before kernel source sync:"
+          df -h     
         
     - name: Fetch toolchains
       run: |
@@ -53,8 +71,13 @@ jobs:
         if [[ "${{ github.event.inputs.NEW_CLANG }}" = "true" ]]; then
           #URL="https://android.googlesource.com/platform/prebuilts/clang/host/linux-x86/+archive/refs/tags/android-u-beta-1-gpl/clang-r458507.tar.gz"
           echo "INFO: Downloading newer clang"
-          aria2c https://android.googlesource.com/platform/prebuilts/clang/host/linux-x86/+archive/refs/heads/main/clang-r547379.tar.gz
-          mkdir clang && mv *.gz clang && cd clang && tar -xf *.gz && rm *.gz
+          #aria2c https://android.googlesource.com/platform/prebuilts/clang/host/linux-x86/+archive/refs/heads/main/clang-r547379.tar.gz
+          #mkdir clang && mv *.gz clang && cd clang && tar -xf *.gz && rm *.gz
+          
+        aria2c https://github.com/Samsung-MT6769-Devs/toolchain/releases/download/clang-21-f8df24015ae2e3c76673c2c9d7a6e4201a68bebd/clang-21-wmk.tar.zst
+        zstd --decompress clang-21-wmk.tar.zst
+        tar xf clang-21-wmk.tar
+        mv clang-wmk clang
           cd ../..
         else
           curl -LSs "https://raw.githubusercontent.com/rsuntk/toolchains/refs/heads/README/clone.sh" | bash -s clang-12
@@ -63,7 +86,7 @@ jobs:
         curl -LSs "https://raw.githubusercontent.com/rsuntk/toolchains/refs/heads/README/clone.sh" | bash -s androidcc-4.9
         curl -LSs "https://raw.githubusercontent.com/rsuntk/toolchains/refs/heads/README/clone.sh" | bash -s arm-gnu
       working-directory: kernel_root
-
+      
     - name: Build kernel
       id: buildKernel
       run: |
