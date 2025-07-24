@@ -58,10 +58,7 @@ jobs:
           ccache --max-size=8G
           ccache --set-config=compression=true
           
-    - name: speed test
-      run:
-        bash $(pwd)/build.sh kernel --jobs $(nproc --all) `echo $DEFCONFIG`
-        
+
     - name: Check Disk Space Before Sync
       run: |
           echo "Disk space before kernel source sync:"
