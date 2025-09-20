@@ -1,10 +1,13 @@
+
+
+
 name: Build Kernel
 on:
   workflow_dispatch:
     inputs:
       BRANCH:
         description: Kernel branch
-        default: 'android-4.19-stable'
+        default: 'm12susfsnext'
         required: true
       TARGET_DEVICE:
         description: 'Device'
@@ -31,7 +34,7 @@ jobs:
     steps:
     - uses: actions/checkout@v4
       with:
-        repository: rsuntkOrgs/exynos850_ports
+        repository: samo1408/m12kernel
         path: kernel_root
         ref: ${{ github.event.inputs.BRANCH }}
         show-progress: false
@@ -59,12 +62,7 @@ jobs:
     - name: Prepare timezone fix
       run: |
         sudo rm /etc/localtime
-        sudo ln -s /usr/share/zoneinfo/Asia/Jakarta /etc/localtime
-      
-    - name: Build kernel
-      id: buildKernel
-      run: |
-        export PATH=$(pwd)/toolchains/clang/bin:$PATH
+in:$PATH
         export CROSS_COMPILE=$(pwd)/toolchains/google/bin/aarch64-linux-android-
         export CLANG_TRIPLE=aarch64-linux-gnu-
         export KBUILD_BUILD_USER="rsuntk"
@@ -86,6 +84,7 @@ jobs:
         export KERNELSU="${{ github.event.inputs.KSU }}"
         export LLVM=1
         export LLVM_IAS=1
+
 
         if [[ "${{ github.event.inputs.SELINUX_PERMISSIVE }}" = "true" ]]; then
           cd security && rm -rf selinux
@@ -119,87 +118,3 @@ jobs:
         SELinux: `echo $SELINUX_STATE`
         " >> buildDetails.txt
         
-        echo "TITLE=Galaxy `echo $DEVICE_ID` Kernel" >> $GITHUB_ENV
-
-        mv out/.config out/build_config.txt
-        gitsha1=$(git rev-parse --short HEAD)
-        buildDetails="`make kernelversion`-`echo $DEVICE`_`echo $gitsha1`-`date +'%Y%m%d%H%M%S'`" && echo "buildDetails=$buildDetails" >> $GITHUB_OUTPUT
-      working-directory: kernel_root
-      
-    - name: Upload config
-      uses: actions/upload-artifact@v4
-      with:
-        name: Config-${{ steps.buildKernel.outputs.buildDetails }}
-        path: kernel_root/out/build_config.txt
-        
-    - name: Upload artifacts
-      uses: actions/upload-artifact@v4
-      with:
-        name: Build-${{ steps.buildKernel.outputs.buildDetails }}
-        path: |
-          kernel_root/out/arch/arm64/boot/*.gz
-          kernel_root/out/arch/arm64/boot/dts/exynos/*.dtb
-          kernel_root/out/arch/arm64/boot/dts/samsung/*.dtb
-
-    - name: Upload AnyKernel3
-      uses: actions/upload-artifact@v4
-      with:
-        name: AnyKernel3-${{ steps.buildKernel.outputs.buildDetails }}
-        path: kernel_root/AnyKernel3/*
-        compression-level: 9
-
-    - name: Cleanup useless files
-      continue-on-error: true
-      if: github.event.inputs.BUILD_TARGET == 'kernel'
-      run: |
-        rm out/vmlinux.o out/vmlinux out/System.map
-        
-    - name: Upload to Telegram
-      if: github.event.inputs.UPLOAD_TO_TG == 'true'
-      env:
-        CHAT_ID: ${{ secrets.CHAT_ID }}
-        BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
-      run: |
-        if [ ! -z "${{ secrets.BOT_TOKEN }}" ]; then
-          ZIP=$(find `pwd` -name "*.zip") && git clone https://github.com/rsuntk/rsuntkBotScript.git --depth=1 i && cp ./i/* . && rm -rf i && bash $(pwd)/rsuntkbot.sh $ZIP "`cat buildDetails.txt`"
-        fi
-      working-directory: kernel_root
-      
-    - name: Check need LKM stripping
-      id: need_strip
-      run: |
-        LKM=$(find $(pwd) -type f -name "*.ko")
-        if [ "$LKM" = "" ]; then
-          echo "UPLOAD=false" >> $GITHUB_OUTPUT
-        else
-          echo "UPLOAD=true" >> $GITHUB_OUTPUT
-        fi
-        
-    - name: Strip LKMs
-      if: steps.need_strip.outputs.UPLOAD == 'true'
-      run: |
-        # Cleanup zip
-        rm -rf *.zip
-
-        # Create folder
-        mkdir ../kernel_object_tmp
-        mkdir kernel_object
-
-        # Only move neccessary path!
-        find $(pwd) -type f -name "*.ko" -exec mv {} ../kernel_object_tmp \;
-        LIST=$(find ../kernel_object_tmp -type f -name "*.ko")
-
-        # Start stripping
-        for file in $LIST; do
-          echo -e "- Stripping `basename $file`"
-          $(pwd)/toolchains/clang/bin/llvm-strip "$file" --strip-unneeded
-        done
-        mv ../kernel_object_tmp/*.ko $(pwd)/kernel_object/
-      working-directory: kernel_root
-        
-    - name: Upload LKM
-      if: steps.need_strip.outputs.UPLOAD == 'true'
-      uses: actions/upload-artifact@v4
-      with:
-        name: LKM-${{ steps.buildKernel.outputs.buildDetails }}
-        path: kernel_root/kernel_object/*
