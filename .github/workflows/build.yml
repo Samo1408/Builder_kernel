@@ -9,7 +9,7 @@ on:
       TARGET_DEVICE:
         description: 'Device'
         required: true
-        default: 'a12s'
+        default: 'm12'
         type: choice
         options:
           - a12s
@@ -77,7 +77,7 @@ jobs:
           export DEVICE="A127F"
           export DEVICE_ID="A12s"
         elif [[ "${{ github.event.inputs.TARGET_DEVICE }}" = "m12" ]]; then
-          export DEFCONFIG="rsuntk-m12-susfs_defconfig"
+          export DEFCONFIG="m12susfs"
           export DEVICE="M127G"
           export DEVICE_ID="M12"
         fi
