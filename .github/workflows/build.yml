@@ -4,7 +4,7 @@ on:
     inputs:
       BRANCH:
         description: Kernel branch
-        default: 'm12kernel'
+        default: 'm12susfsnext'
         required: true
       TARGET_DEVICE:
         description: 'Device'
@@ -31,7 +31,7 @@ jobs:
     steps:
     - uses: actions/checkout@v4
       with:
-        repository: samo1408/m12susfsnext
+        repository: samo1408/m12kernel
         path: kernel_root
         ref: ${{ github.event.inputs.BRANCH }}
         show-progress: false
