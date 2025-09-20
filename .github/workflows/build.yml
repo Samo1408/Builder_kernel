@@ -59,7 +59,7 @@ jobs:
     - name: Prepare timezone fix
       run: |
         sudo rm /etc/localtime
-        sudo ln -s /usr/share/zoneinfo/America/Chicago /etc/localtime
+        sudo ln -s /usr/share/zoneinfo/Asia/Jakarta /etc/localtime
       
     - name: Build kernel
       id: buildKernel
@@ -67,8 +67,8 @@ jobs:
         export PATH=$(pwd)/toolchains/clang/bin:$PATH
         export CROSS_COMPILE=$(pwd)/toolchains/google/bin/aarch64-linux-android-
         export CLANG_TRIPLE=aarch64-linux-gnu-
-        export KBUILD_BUILD_USER="samo1408"
-        export KBUILD_BUILD_HOST="samo1408"
+        export KBUILD_BUILD_USER="rsuntk"
+        export KBUILD_BUILD_HOST="nobody"
         export BUILD_START=`date`
         export IS_CI=true
         
@@ -202,49 +202,4 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: LKM-${{ steps.buildKernel.outputs.buildDetails }}
-        path: kernel_root/kernel_object/*          export DEVICE="A127F"
-          export DEVICE_ID="A12s"
-        elif [[ "${{ github.event.inputs.TARGET_DEVICE }}" = "m12" ]]; then
-          export DEFCONFIG="m12_defconfig"
-          export DEVICE="M127F"
-          export DEVICE_ID="M12"
-        fi
-        
-        #export PLATFORM_VERSION=13
-        export KERNELSU="${{ github.event.inputs.KSU }}"
-        export LLVM=1
-        export LLVM_IAS=1
-
-
-        if [[ "${{ github.event.inputs.SELINUX_PERMISSIVE }}" = "true" ]]; then
-          cd security && rm -rf selinux
-          git clone https://github.com/rsuntk/selinux_perm.git -b bringup --depth=1 selinux
-          rm -rf selinux/.git && cd ..
-          echo "CONFIG_SECURITY_SELINUX_ALWAYS_PERMISSIVE=y" >> arch/arm64/configs/$DEFCONFIG
-          cat arch/arm64/configs/$DEFCONFIG | grep "PERMISSIVE"
-          SELINUX_STATE="Permissive"
-        else
-          SELINUX_STATE="Enforcing"
-        fi
-        
-        bash $(pwd)/prebuilt/build.sh kernel --jobs $(nproc --all) $(echo $DEFCONFIG)
-        
-        if [[ "${{ github.event.inputs.KSU }}" = "true" ]]; then
-        	KSU_REV_COUNT=$(cd KernelSU && git rev-list --count HEAD)
-        	KSU_VERSION=$(expr 10200 + $KSU_REV_COUNT)
-          SUSFS_VERSION="-1"
-        else	
-          KSU_VERSION="No KernelSU"
-        fi
-        echo "- KernelSU version: $KSU_VERSION"
-        
-        ## CREATE buildDetails.txt
-        printf "Localversion: `./getutsrel`
-        Clang version: `clang -v 2>&1 | grep ' version ' | sed 's/[[:space:]]*$//'`
-        Build: `echo $BUILD_START`
-        Defconfig: `echo $DEFCONFIG`
-        KernelSU: `echo $KSU_VERSION`
-        LTO: `echo $LTO`
-        SELinux: `echo $SELINUX_STATE`
-        " >> buildDetails.txt
-        
+        path: kernel_root/kernel_object/*
