@@ -98,7 +98,7 @@ jobs:
           SELINUX_STATE="Enforcing"
         fi
         
-        bash $(pwd)/prebuilt/build.sh kernel --jobs $(nproc --all) $(echo $DEFCONFIG)
+        bash $(pwd)/build.sh kernel --jobs $(nproc --all) $(echo $DEFCONFIG)
         
         if [[ "${{ github.event.inputs.KSU }}" = "true" ]]; then
         	KSU_REV_COUNT=$(cd KernelSU && git rev-list --count HEAD)
