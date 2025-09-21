@@ -4,11 +4,11 @@ on:
     inputs:
       BRANCH:
         description: Kernel branch
-        default: 'm12susfsnext'
+        default: 'T_UD'
         required: true
       DEFCONFIG: 
         description: Defconfig
-        default: 'm12susfs'
+        default: 'rsuntk-m12_defconfig'
         required: false
       KSU:
         description: Add KernelSU support
