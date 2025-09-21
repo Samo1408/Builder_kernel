@@ -4,7 +4,7 @@ on:
     inputs:
       BRANCH:
         description: Kernel branch
-        default: 'android-4.19'
+        default: '4.19.111-samsung+kernelsu'
         required: true
       TARGET_DEVICE:
         description: 'Device'
@@ -31,7 +31,7 @@ jobs:
     steps:
     - uses: actions/checkout@v4
       with:
-        repository: rsuntkOrgs/kernel_samsung_exynos850
+        repository: SpacingBat3/android_kernel_samsung-m127f_a13
         path: kernel_root
         ref: ${{ github.event.inputs.BRANCH }}
         show-progress: false
