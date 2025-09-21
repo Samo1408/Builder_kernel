@@ -90,25 +90,25 @@ jobs:
     - name: Build kernel
       id: buildKernel
       run: |
-        export PATH=$(pwd)/toolchains/clang/bin:$PATH
-        export CROSS_COMPILE="$(pwd)/toolchains/google/bin/aarch64-linux-android-"
-        export CROSS_COMPILE_COMPAT="$(pwd)/toolchains/arm-gnu/bin/arm-linux-gnueabi-"
-        export CROSS_COMPILE_ARM32=$CROSS_COMPILE_COMPAT
-        export CLANG_TRIPLE=aarch64-linux-gnu-
-        export KBUILD_BUILD_USER="samsung"
-        export KBUILD_BUILD_HOST="samsung"
-        export BUILD_START=`date`
-        export SELINUX_STATE="Enforcing"
-        export IS_CI=true
-        export DEFCONFIG="${{ github.event.inputs.DEFCONFIG }}"
-        export DEVICE="M127G"
-        export DEVICE_ID="M12"
-        export TARGET_PRODUCT="m12"
-        export KERNELSU="${{ github.event.inputs.KSU }}"
-        export LLVM=1
-        export LLVM_IAS=1
-        
-        bash $(pwd)/build.sh kernel --jobs $(nproc --all) `echo $DEFCONFIG`
+       export PATH=$(pwd)/toolchains/clang/bin:$PATH
+       export CROSS_COMPILE="$(pwd)/toolchains/google/bin/aarch64-linux-android-"
+       export CROSS_COMPILE_COMPAT="$(pwd)/toolchains/arm-gnu/bin/arm-linux-gnueabi-"
+       export CROSS_COMPILE_ARM32=$CROSS_COMPILE_COMPAT
+       export CLANG_TRIPLE=aarch64-linux-gnu-
+       export KBUILD_BUILD_USER="samsung"
+       export KBUILD_BUILD_HOST="samsung"
+       export BUILD_START=`date`
+       export SELINUX_STATE="Enforcing"
+       export IS_CI=true
+       export DEFCONFIG="${{ github.event.inputs.DEFCONFIG }}"
+       export DEVICE="M127G"
+       export DEVICE_ID="M12"
+       export TARGET_PRODUCT="m12"
+       export KERNELSU="${{ github.event.inputs.KSU }}"
+       export LLVM=1
+       export LLVM_IAS=1
+       export DEFAULT_ARGS="LLVM=1 LLVM_IAS=1 ARCH=arm64"
+       bash $(pwd)/build.sh kernel --jobs $(nproc --all) `echo $DEFCONFIG` V=1
         
         if [[ "${{ github.event.inputs.KSU }}" = "true" ]]; then
         	KSU_REV_COUNT=$(cd KernelSU-Next && git rev-list --count HEAD)
