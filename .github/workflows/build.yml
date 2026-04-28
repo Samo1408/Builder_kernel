@@ -147,5 +147,5 @@ jobs:
         name: M12-${{ steps.buildKernel.outputs.buildDetails }}
         path: kernel_root/AnyKernel3/*
         compression-level: 9
-
+       working-directory: kernel_root
     
