@@ -4,11 +4,11 @@ on:
     inputs:
       BRANCH:
         description: Kernel branch
-        default: 'T_UD'
+        default: 'main'
         required: true
       DEFCONFIG: 
         description: Defconfig
-        default: 'rsuntk-m12-susfs_defconfig'
+        default: 'physwizz_defconfig'
         required: false
       KSU:
         description: Add KernelSU support
@@ -36,7 +36,7 @@ jobs:
       name: Clone Kernel source
       with:
         path: kernel_root
-        repository: "Samo1408/m12kernel"
+        repository: "Samo1408/Kernel_M127G"
         ref: ${{ github.event.inputs.BRANCH }}
         show-progress: false
         fetch-depth: 1
@@ -103,7 +103,7 @@ jobs:
        export DEFCONFIG="${{ github.event.inputs.DEFCONFIG }}"
        export DEVICE="M127G"
        export DEVICE_ID="M12"
-       export TARGET_PRODUCT="m12"
+       export TARGET_PRODUCT="m12nsxx"
        export KERNELSU="${{ github.event.inputs.KSU }}"
        export LLVM=1
        export LLVM_IAS=1
@@ -151,7 +151,7 @@ jobs:
     - name: Upload AnyKernel3
       uses: actions/upload-artifact@v4
       with:
-        name: AnyKernel3-${{ steps.buildKernel.outputs.buildDetails }}
+        name: M12-${{ steps.buildKernel.outputs.buildDetails }}
         path: kernel_root/AnyKernel3/*
         compression-level: 9
         
