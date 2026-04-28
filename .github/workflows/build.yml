@@ -17,9 +17,6 @@ on:
       KSU:
         description: Add KernelSU support
         type: boolean
-      UPLOAD_TO_TG:
-        description: Upload to Telegram
-        type: boolean
       SELINUX_PERMISSIVE:
         description: Permissive SELinux
         type: boolean
@@ -147,5 +144,3 @@ jobs:
         name: M12-${{ steps.buildKernel.outputs.buildDetails }}
         path: kernel_root/AnyKernel3/*
         compression-level: 9
-       working-directory: kernel_root
-    
