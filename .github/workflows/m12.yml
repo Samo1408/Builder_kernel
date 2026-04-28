@@ -50,18 +50,11 @@ jobs:
       run: |
         mkdir toolchains
         cd toolchains
-        if [[ "${{ github.event.inputs.NEW_CLANG }}" = "true" ]]; then
-          #URL="https://android.googlesource.com/platform/prebuilts/clang/host/linux-x86/+archive/refs/tags/android-u-beta-1-gpl/clang-r458507.tar.gz"
-          echo "INFO: Downloading newer clang"
-          aria2c https://android.googlesource.com/platform/prebuilts/clang/host/linux-x86/+archive/refs/heads/main/clang-r547379.tar.gz
-          mkdir clang && mv *.gz clang && cd clang && tar -xf *.gz && rm *.gz
-          cd ../..
-        else
-          curl -LSs "https://raw.githubusercontent.com/rsuntk/toolchains/refs/heads/README/clone.sh" | bash -s clang-12
-          mv clang* clang
-        fi
-        curl -LSs "https://raw.githubusercontent.com/rsuntk/toolchains/refs/heads/README/clone.sh" | bash -s androidcc-4.9
-        curl -LSs "https://raw.githubusercontent.com/rsuntk/toolchains/refs/heads/README/clone.sh" | bash -s arm-gnu
+        #URL="https://android.googlesource.com/platform/prebuilts/clang/host/linux-x86/+archive/0998f421320ae02fddabec8a78b91bf7620159f6/clang-r563880.tar.gz"
+        echo "INFO: Fetching clang .."
+        mkdir clang && cd clang && wget -q -O clang.tar.gz $URL && tar -xf clang.tar.gz && rm *.gz && cd ..
+        curl -LSs https://raw.githubusercontent.com/rsuntk/toolchains/refs/heads/README/clone.sh | bash -s androidcc-4.9
+        mv androidcc-4.9 google
       working-directory: kernel_root
 
     - name: Build kernel
