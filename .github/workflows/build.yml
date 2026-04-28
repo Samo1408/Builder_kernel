@@ -4,7 +4,7 @@ on:
     inputs:
       BRANCH:
         description: Kernel branch
-        default: 'staging-new'
+        default: 'staging-susfs'
         required: true
       DEFCONFIG: 
         description: Defconfig
