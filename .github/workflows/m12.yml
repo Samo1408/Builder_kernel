@@ -30,32 +30,45 @@ jobs:
     steps:
     - name: Get date
       id: rundate
-      run: sudo rm /etc/localtime && sudo ln -s /usr/share/zoneinfo/Asia/Jakarta /etc/localtime && echo "REPO_DATE=`date`" >> $GITHUB_OUTPUT
+      run: |
+        sudo ln -sf /usr/share/zoneinfo/Asia/Jakarta /etc/localtime
+        echo "REPO_DATE=$(date)" >> $GITHUB_OUTPUT
     
-    - uses: actions/checkout@v4
+    - name: Checkout kernel source
+      uses: actions/checkout@v4
       with:
         path: kernel_root
         repository: "Samo1408/Kernel_M127G"
         ref: ${{ github.event.inputs.BRANCH }}
-        show-progress: false
         fetch-depth: 1
+        submodules: 'recursive'  # إذا كان KernelSU أو غيرها من submodules
         
     - name: Prepare dependencies
       run: |
-        sudo apt update -y
-        sudo apt install bc cpio flex bison aptitude git python-is-python3 tar perl wget aria2 curl lz4 -y
-        sudo aptitude install libssl-dev -y
-        
+        sudo apt update
+        sudo apt install -y bc cpio flex bison git python3 perl tar wget aria2 curl lz4 libssl-dev
+
     - name: Fetch toolchains
       run: |
-        mkdir toolchains
+        mkdir -p toolchains
         cd toolchains
-        #URL="https://android.googlesource.com/platform/prebuilts/clang/host/linux-x86/+archive/refs/heads/llvm-r450784/clang-r433403.tar.gz"
-        #URL="https://android.googlesource.com/platform/prebuilts/clang/host/linux-x86/+archive/refs/heads/android13-gsi/clang-r450784d.tar.gz"
-        #URL="https://android.googlesource.com/platform/prebuilts/clang/host/linux-x86/+archive/refs/heads/main/clang-r522817.tar.gz"
-        #URL="https://android.googlesource.com/platform/prebuilts/clang/host/linux-x86/+archive/0998f421320ae02fddabec8a78b91bf7620159f6/clang-r563880.tar.gz"
-        echo "INFO: Fetching clang .."
-        mkdir clang && cd clang && wget -q -O clang.tar.gz $URL && tar -xf clang.tar.gz && rm *.gz && cd ..
+        
+        # اختيار رابط clang بناءً على الإدخال
+        if [[ "${{ github.event.inputs.NEW_CLANG }}" == "true" ]]; then
+          # Clang 20 (اخر إصدار متاح من AOSP)
+          URL="https://android.googlesource.com/platform/prebuilts/clang/host/linux-x86/+archive/refs/heads/main/clang-r522817.tar.gz"
+        else
+          # Clang 17 مستقر
+          URL="https://android.googlesource.com/platform/prebuilts/clang/host/linux-x86/+archive/refs/heads/android13-gsi/clang-r450784d.tar.gz"
+        fi
+        
+        echo "Downloading clang from: $URL"
+        mkdir clang && cd clang
+        wget -q --show-progress -O clang.tar.gz "$URL"
+        tar -xf clang.tar.gz && rm clang.tar.gz
+        cd ..
+        
+        # سلسلة أدوات GCC (ضرورية لبعض الرؤوس)
         curl -LSs https://raw.githubusercontent.com/rsuntk/toolchains/refs/heads/README/clone.sh | bash -s androidcc-4.9
         mv androidcc-4.9 google
       working-directory: kernel_root
@@ -68,54 +81,88 @@ jobs:
         export CLANG_TRIPLE=aarch64-linux-gnu-
         export KBUILD_BUILD_USER="samo"
         export KBUILD_BUILD_HOST="samo1408"
-        export BUILD_START=`date`
+        export BUILD_START=$(date)
         export SELINUX_STATE="Enforcing"
         export IS_CI=true
         export DEFCONFIG="${{ github.event.inputs.DEFCONFIG }}"
-        export DEVICE="M127G"
-        export DEVICE_ID="M12"
-        export TARGET_PRODUCT="m12nsxx"
         export KERNELSU="${{ github.event.inputs.KSU }}"
         export LLVM=1
         export LLVM_IAS=1
         
-        bash $(pwd)/build.sh kernel --jobs $(nproc --all) `echo $DEFCONFIG`
-        
-        if [[ "${{ github.event.inputs.KSU }}" = "true" ]]; then
-        	KSU_REV_COUNT=$(cd KernelSU && git rev-list --count HEAD)
-        	KSU_VERSION=$(expr 10200 + $KSU_REV_COUNT)
-        else
-        	KSU_VERSION="No KernelSU"
+        # التحقق من وجود سكربت build.sh
+        if [[ ! -f "build.sh" ]]; then
+          echo "ERROR: build.sh not found in kernel root!"
+          exit 1
         fi
-        echo "- KernelSU version: $KSU_VERSION"
-
-        if [ -e $(pwd)/include/linux/susfs.h ]; then
-          SUSFS_VERSION=$(cat ./include/linux/susfs.h | grep -E '^#define SUSFS_VERSION' | cut -d' ' -f3 | sed 's/"//g')
+        
+        bash build.sh kernel --jobs $(nproc --all) "$DEFCONFIG"
+        
+        # حساب إصدار KernelSU
+        if [[ "${{ github.event.inputs.KSU }}" == "true" ]]; then
+          if [[ -d "KernelSU" ]]; then
+            KSU_REV_COUNT=$(cd KernelSU && git rev-list --count HEAD 2>/dev/null || echo 0)
+            KSU_VERSION=$((10200 + KSU_REV_COUNT))
+          else
+            KSU_VERSION="KernelSU folder missing"
+          fi
+        else
+          KSU_VERSION="No KernelSU"
+        fi
+        echo "KSU_VERSION=$KSU_VERSION" >> $GITHUB_ENV
+        
+        # الحصول على إصدار susfs
+        if [[ -f "include/linux/susfs.h" ]]; then
+          SUSFS_VERSION=$(grep -E '^#define SUSFS_VERSION' include/linux/susfs.h | cut -d' ' -f3 | tr -d '"')
         else
           SUSFS_VERSION="Not available"
         fi
         
-        ## CREATE buildDetails.txt
-        printf "Localversion: `./getutsrel`
-        Clang version: `clang -v 2>&1 | grep ' version ' | sed 's/[[:space:]]*$//'`
-        Build date: `echo $BUILD_START`
-        Defconfig: `echo $DEFCONFIG`
-        KernelSU: `echo $KSU_VERSION`
-        Susfs: `echo $SUSFS_VERSION`
+        # توليد buildDetails.txt بدون الحاجة لسكربت خارجي
+        cat > buildDetails.txt <<EOF
+        Localversion: $(make kernelversion 2>/dev/null || echo "unknown")
+        Clang version: $(clang -v 2>&1 | grep 'version' | head -1 | sed 's/^[^0-9]*//')
+        Build date: $BUILD_START
+        Defconfig: $DEFCONFIG
+        KernelSU: $KSU_VERSION
+        Susfs: $SUSFS_VERSION
         LTO: full
-        SELinux: `echo $SELINUX_STATE`
-        " >> buildDetails.txt
+        SELinux: $SELINUX_STATE
+        EOF
+        cat buildDetails.txt
         
-        echo "TITLE=Galaxy `echo $DEVICE_ID` Kernel" >> $GITHUB_ENV
+        # نسخ ملف config للرفع
+        cp out/.config out/build_config.txt
         
-        echo ""
+        # إنشاء اسم الإصدار
+        git_sha=$(git rev-parse --short HEAD)
+        kernel_ver=$(make kernelversion | tr -d '\n')
+        build_tag="${kernel_ver}-M127G_${git_sha}-$(date +'%Y%m%d%H%M%S')"
+        echo "buildDetails=$build_tag" >> $GITHUB_OUTPUT
+        echo "TITLE=Galaxy M12 Kernel" >> $GITHUB_ENV
+        
+        # طباعة معلومات الإصدار من الـ Image
         echo "===================================================="
-        strings out/arch/arm64/boot/Image | grep "Linux version"
+        strings out/arch/arm64/boot/Image | grep "Linux version" || echo "Image not found or no version string"
         echo "===================================================="
-
-        mv out/.config out/build_config.txt
-        gitsha1=$(git rev-parse --short HEAD)
-        buildDetails="`make kernelversion`-`echo $DEVICE`_`echo $gitsha1`-`date +'%Y%m%d%H%M%S'`" && echo "buildDetails=$buildDetails" >> $GITHUB_OUTPUT
+      working-directory: kernel_root
+      
+    - name: Build flashable ZIP (AnyKernel3)
+      if: github.event.inputs.UPLOAD_TO_TG == 'true'
+      run: |
+        # التأكد من وجود مجلد AnyKernel3
+        if [[ ! -d "AnyKernel3" ]]; then
+          echo "WARNING: AnyKernel3 folder not found, skipping ZIP creation"
+          exit 0
+        fi
+        # نسخ Image.gz و dtb إلى قالب AnyKernel3
+        cp out/arch/arm64/boot/Image.gz AnyKernel3/
+        mkdir -p AnyKernel3/dtb
+        cp out/arch/arm64/boot/dts/mediatek/*.dtb AnyKernel3/dtb/ 2>/dev/null || true
+        
+        # إنشاء ملف zip
+        cd AnyKernel3
+        zip -r9 "../M12-${{ steps.buildKernel.outputs.buildDetails }}.zip" ./*
+        cd ..
       working-directory: kernel_root
       
     - name: Upload config
@@ -124,19 +171,20 @@ jobs:
         name: Config-${{ steps.buildKernel.outputs.buildDetails }}
         path: kernel_root/out/build_config.txt
         
-    - name: Upload artifacts
+    - name: Upload kernel and dtb
       uses: actions/upload-artifact@v4
       with:
         name: Build-${{ steps.buildKernel.outputs.buildDetails }}
         path: |
-          kernel_root/out/arch/arm64/boot/*.gz
+          kernel_root/out/arch/arm64/boot/Image.gz
           kernel_root/out/arch/arm64/boot/dts/mediatek/*.dtb
-
-    - name: Upload AnyKernel3
+          
+    - name: Upload flashable ZIP
+      if: github.event.inputs.UPLOAD_TO_TG == 'true'
       uses: actions/upload-artifact@v4
       with:
-        name: M12-${{ steps.buildKernel.outputs.buildDetails }}
-        path: kernel_root/AnyKernel3/*
+        name: M12-Kernel-${{ steps.buildKernel.outputs.buildDetails }}
+        path: kernel_root/*.zip
         compression-level: 9
         
     - name: Upload to Telegram
@@ -145,33 +193,35 @@ jobs:
         CHAT_ID: ${{ secrets.CHAT_ID }}
         BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
       run: |
-        if [ ! -z "${{ secrets.BOT_TOKEN }}" ]; then
-          ZIP=$(find `pwd` -name "*.zip")
-          git clone https://github.com/rsuntk/rsuntkBotScript.git --depth=1 i && cp ./i/* . && rm -rf i
-          bash $(pwd)/rsuntkbot.sh $ZIP "`cat buildDetails.txt`"
+        if [[ -z "$BOT_TOKEN" || -z "$CHAT_ID" ]]; then
+          echo "Telegram secrets missing, skipping upload"
+          exit 0
         fi
+        ZIP_FILE=$(find . -maxdepth 1 -name "*.zip" | head -1)
+        if [[ -z "$ZIP_FILE" ]]; then
+          echo "No zip file found to upload"
+          exit 1
+        fi
+        git clone https://github.com/rsuntk/rsuntkBotScript.git --depth=1 bot_script
+        bash bot_script/rsuntkbot.sh "$ZIP_FILE" "$(cat buildDetails.txt)"
       working-directory: kernel_root
         
     - name: Strip LKMs
       if: github.event.inputs.UPLOAD_LKM == 'true'
       run: |
-        # Cleanup zip
-        rm -rf *.zip
-
-        # Create folder
-        mkdir ../kernel_object_tmp
-        mkdir kernel_object
-
-        # Only move neccessary path!
-        find $(pwd) -type f -name "*.ko" -exec mv {} ../kernel_object_tmp \;
-        LIST=$(find ../kernel_object_tmp -type f -name "*.ko")
-
-        # Start stripping
-        for file in $LIST; do
-          echo -e "- Stripping `basename $file`"
-          $(pwd)/toolchains/clang/bin/llvm-strip "$file" --strip-unneeded
+        mkdir -p kernel_object
+        # البحث عن ملفات .ko في مجلد out
+        find out -type f -name "*.ko" -exec cp {} kernel_object/ \;
+        if [[ -z "$(ls kernel_object/*.ko 2>/dev/null)" ]]; then
+          echo "No kernel modules found"
+          exit 0
+        fi
+        # استخدام llvm-strip من clang الموجود
+        STRIP=$(pwd)/toolchains/clang/bin/llvm-strip
+        for mod in kernel_object/*.ko; do
+          echo "Stripping $(basename $mod)"
+          "$STRIP" --strip-unneeded "$mod"
         done
-        mv ../kernel_object_tmp/*.ko $(pwd)/kernel_object/
       working-directory: kernel_root
         
     - name: Upload LKM
@@ -179,4 +229,4 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: LKM-${{ steps.buildKernel.outputs.buildDetails }}
-        path: kernel_root/kernel_object/*
+        path: kernel_root/kernel_object/*.ko
