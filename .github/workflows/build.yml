@@ -4,16 +4,16 @@ on:
     inputs:
       BRANCH:
         description: Kernel branch
-        default: '4.19.111-samsung+kernelsu'
+        default: 'main'
         required: true
       TARGET_DEVICE:
         description: 'Device'
         required: true
-        default: 'm12'
+        default: 'm12nsxx'
         type: choice
         options:
           - a12s
-          - m12
+          - m12nsxx
       KSU:
         description: Add KernelSU support
         type: boolean
@@ -31,7 +31,7 @@ jobs:
     steps:
     - uses: actions/checkout@v4
       with:
-        repository: SpacingBat3/android_kernel_samsung-m127f_a13
+        repository: Samo1408/Kernel_M127G
         path: kernel_root
         ref: ${{ github.event.inputs.BRANCH }}
         show-progress: false
@@ -67,8 +67,8 @@ jobs:
         export PATH=$(pwd)/toolchains/clang/bin:$PATH
         export CROSS_COMPILE=$(pwd)/toolchains/google/bin/aarch64-linux-android-
         export CLANG_TRIPLE=aarch64-linux-gnu-
-        export KBUILD_BUILD_USER="rsuntk"
-        export KBUILD_BUILD_HOST="nobody"
+        export KBUILD_BUILD_USER="Samo1408"
+        export KBUILD_BUILD_HOST="runner"
         export BUILD_START=`date`
         export IS_CI=true
         
@@ -77,7 +77,7 @@ jobs:
           export DEVICE="A127F"
           export DEVICE_ID="A12s"
         elif [[ "${{ github.event.inputs.TARGET_DEVICE }}" = "m12" ]]; then
-          export DEFCONFIG="m12susfs"
+          export DEFCONFIG="physwizz_defconfig"
           export DEVICE="M127G"
           export DEVICE_ID="M12"
         fi
@@ -144,62 +144,8 @@ jobs:
     - name: Upload AnyKernel3
       uses: actions/upload-artifact@v4
       with:
-        name: AnyKernel3-${{ steps.buildKernel.outputs.buildDetails }}
+        name: M12-${{ steps.buildKernel.outputs.buildDetails }}
         path: kernel_root/AnyKernel3/*
         compression-level: 9
 
-    - name: Cleanup useless files
-      continue-on-error: true
-      if: github.event.inputs.BUILD_TARGET == 'kernel'
-      run: |
-        rm out/vmlinux.o out/vmlinux out/System.map
-        
-    - name: Upload to Telegram
-      if: github.event.inputs.UPLOAD_TO_TG == 'true'
-      env:
-        CHAT_ID: ${{ secrets.CHAT_ID }}
-        BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
-      run: |
-        if [ ! -z "${{ secrets.BOT_TOKEN }}" ]; then
-          ZIP=$(find `pwd` -name "*.zip") && git clone https://github.com/rsuntk/rsuntkBotScript.git --depth=1 i && cp ./i/* . && rm -rf i && bash $(pwd)/rsuntkbot.sh $ZIP "`cat buildDetails.txt`"
-        fi
-      working-directory: kernel_root
-      
-    - name: Check need LKM stripping
-      id: need_strip
-      run: |
-        LKM=$(find $(pwd) -type f -name "*.ko")
-        if [ "$LKM" = "" ]; then
-          echo "UPLOAD=false" >> $GITHUB_OUTPUT
-        else
-          echo "UPLOAD=true" >> $GITHUB_OUTPUT
-        fi
-        
-    - name: Strip LKMs
-      if: steps.need_strip.outputs.UPLOAD == 'true'
-      run: |
-        # Cleanup zip
-        rm -rf *.zip
-
-        # Create folder
-        mkdir ../kernel_object_tmp
-        mkdir kernel_object
-
-        # Only move neccessary path!
-        find $(pwd) -type f -name "*.ko" -exec mv {} ../kernel_object_tmp \;
-        LIST=$(find ../kernel_object_tmp -type f -name "*.ko")
-
-        # Start stripping
-        for file in $LIST; do
-          echo -e "- Stripping `basename $file`"
-          $(pwd)/toolchains/clang/bin/llvm-strip "$file" --strip-unneeded
-        done
-        mv ../kernel_object_tmp/*.ko $(pwd)/kernel_object/
-      working-directory: kernel_root
-        
-    - name: Upload LKM
-      if: steps.need_strip.outputs.UPLOAD == 'true'
-      uses: actions/upload-artifact@v4
-      with:
-        name: LKM-${{ steps.buildKernel.outputs.buildDetails }}
-        path: kernel_root/kernel_object/*
+    
