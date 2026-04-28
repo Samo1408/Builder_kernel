@@ -76,8 +76,8 @@ jobs:
         export DEVICE_ID="M12"
         export TARGET_PRODUCT="m12nsxx"
         export KERNELSU="${{ github.event.inputs.KSU }}"
-        export LLVM=1
-        export LLVM_IAS=1
+        #export LLVM=1
+        #export LLVM_IAS=1
         
         bash $(pwd)/build.sh kernel --jobs $(nproc --all) `echo $DEFCONFIG`
         
@@ -102,7 +102,7 @@ jobs:
         Defconfig: `echo $DEFCONFIG`
         KernelSU: `echo $KSU_VERSION`
         Susfs: `echo $SUSFS_VERSION`
-        LTO: thin
+        LTO: off
         SELinux: `echo $SELINUX_STATE`
         " >> buildDetails.txt
         
