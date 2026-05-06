@@ -1,10 +1,10 @@
-name: Build Kernel
+name: Build Kernel From Other Repo
 on:
   workflow_dispatch:
     inputs:
       BRANCH:
         description: Kernel branch
-        default: 'staging-new'
+        default: 'common'
         required: true
       DEFCONFIG: 
         description: Defconfig
@@ -35,7 +35,7 @@ jobs:
     - uses: actions/checkout@v4
       with:
         path: kernel_root
-        repository: "Samo1408/KernelM32"
+        repository: "Samo1408/android_kernel_samsung_mt6768"
         ref: ${{ github.event.inputs.BRANCH }}
         show-progress: false
         fetch-depth: 1
@@ -85,7 +85,7 @@ jobs:
         export LLVM=1
         export LLVM_IAS=1
         
-        bash $(pwd)/build.sh kernel --jobs $(nproc --all) `echo $DEFCONFIG`
+        bash $(pwd)/build_slmkernel.sh kernel --jobs $(nproc --all) `echo $DEFCONFIG`
         
         if [[ "${{ github.event.inputs.KSU }}" = "true" ]]; then
         	KSU_REV_COUNT=$(cd xxKernelSU && git rev-list --count HEAD)
