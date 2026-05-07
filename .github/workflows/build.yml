@@ -65,7 +65,7 @@ jobs:
       working-directory: kernel_root
     - name: Fix KernelSU symlink
       run: |
-         git clone https://github.com/backslashxx/KernelSU/KernelSU.git
+         git clone https://github.com/backslashxx/KernelSU.git
          ln -sf "$(pwd)/KernelSU/kernel" drivers/kernelsu
          ls drivers/kernelsu/Kconfig
     - name: Build kernel
