@@ -40,7 +40,11 @@ jobs:
         show-progress: false
         submodules: 'recursive'
         fetch-depth: 1
-        
+    - name: Fix KernelSU symlink
+      run: |
+        rm -rf drivers/kernelsu
+        ln -sf "$(pwd)/KernelSU/kernel" drivers/kernelsu
+        ls drivers/kernelsu/Kconfig
     - name: Prepare dependencies
       run: |
         sudo apt update -y
