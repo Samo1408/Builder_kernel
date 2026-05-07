@@ -38,13 +38,9 @@ jobs:
         repository: "Samo1408/android_kernel_samsung_mt6768"
         ref: ${{ github.event.inputs.BRANCH }}
         show-progress: false
-        submodules: 'recursive'
+     #   submodules: 'recursive'
         fetch-depth: 1
-    - name: Fix KernelSU symlink
-      run: |
-        rm -rf drivers/kernelsu
-        ln -sf "$(pwd)/KernelSU/kernel" drivers/kernelsu
-        ls drivers/kernelsu/Kconfig
+    
     - name: Prepare dependencies
       run: |
         sudo apt update -y
