@@ -38,6 +38,7 @@ jobs:
         repository: "Samo1408/KernelM32"
         ref: ${{ github.event.inputs.BRANCH }}
         show-progress: false
+        submodules: 'recursive'
         fetch-depth: 1
         
     - name: Prepare dependencies
