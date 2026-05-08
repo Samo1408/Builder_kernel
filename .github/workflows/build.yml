@@ -4,7 +4,7 @@ on:
     inputs:
       BRANCH:
         description: Kernel branch
-        default: 'common'
+        default: 'ASB-296_SUSFS_NXT'
         required: true
       DEFCONFIG: 
         description: Defconfig
@@ -35,7 +35,7 @@ jobs:
     - uses: actions/checkout@v4
       with:
         path: kernel_root
-        repository: "Samo1408/android_kernel_samsung_mt6768"
+        repository: "Samo141988/kernel_m32"
         ref: ${{ github.event.inputs.BRANCH }}
         show-progress: false
      #   submodules: 'recursive'
@@ -46,7 +46,14 @@ jobs:
         sudo apt update -y
         sudo apt install bc cpio flex bison aptitude git python-is-python3 tar perl wget aria2 curl lz4 -y
         sudo aptitude install libssl-dev -y
-        
+        git clone https://github.com/Samo1408/Builder_kernel.git -b m32-new
+        cd Builder_kernel/fs/
+        cp *.* $(pwd)/fs/*.*
+        cd ..
+        cd kernel/
+        cp *.* $(pwd)/kernel/*.*
+        cd ..
+        cp -f build.sh $(pwd)/build.sh
     - name: Fetch toolchains
       run: |
         mkdir toolchains
@@ -88,7 +95,7 @@ jobs:
         bash $(pwd)/build.sh kernel --jobs $(nproc --all) `echo $DEFCONFIG`
         
         if [[ "${{ github.event.inputs.KSU }}" = "true" ]]; then
-        	KSU_REV_COUNT=$(cd KernelSU && git rev-list --count HEAD)
+        	KSU_REV_COUNT=$(cd KernelSU-Next && git rev-list --count HEAD)
         	KSU_VERSION=$(expr 10200 + $KSU_REV_COUNT)
         else
         	KSU_VERSION="No KernelSU"
