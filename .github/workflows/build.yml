@@ -47,11 +47,10 @@ jobs:
         sudo apt install bc cpio flex bison aptitude git python-is-python3 tar perl wget aria2 curl lz4 -y
         sudo aptitude install libssl-dev -y
         git clone https://github.com/Samo1408/Builder_kernel.git -b m32-new
-        cd Builder_kernel/fs/
-        cp *.* $(pwd)/fs/*.*
-        cd ..
-        cd kernel/
-        cp *.* $(pwd)/kernel/*.*
+        cd Builder_kernel/
+        cp fs/*.* $(pwd)/fs/*.*
+        
+        cp kernel/*.* $(pwd)/kernel/*.*
         cd ..
         cp -f build.sh $(pwd)/build.sh
     - name: Fetch toolchains
