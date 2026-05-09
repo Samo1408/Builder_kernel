@@ -49,23 +49,23 @@ jobs:
     - name: Prepare dependencies
       run: |
         sudo apt update -y
-        sudo apt install bc cpio flex bison aptitude git python-is-python3 tar perl wget curl lz4 -y
-        sudo aptitude install libssl-dev -y
+       # sudo apt install bc cpio flex bison aptitude git python-is-python3 tar perl wget curl lz4 -y
+       # sudo aptitude install libssl-dev -y
         
     - name: Fetch toolchains
       run: |
         mkdir toolchains
         cd toolchains
-        curl -LSs "https://raw.githubusercontent.com/rsuntk/toolchains/refs/heads/README/clone.sh" | bash -s clang-12
-        curl -LSs "https://raw.githubusercontent.com/rsuntk/toolchains/refs/heads/README/clone.sh" | bash -s androidcc-4.9
-        mv clang-12 clang
-        mv androidcc-4.9 google
+      #  curl -LSs "https://raw.githubusercontent.com/rsuntk/toolchains/refs/heads/README/clone.sh" | bash -s clang-12
+      #  curl -LSs "https://raw.githubusercontent.com/rsuntk/toolchains/refs/heads/README/clone.sh" | bash -s androidcc-4.9
+      #  mv clang-12 clang
+      #  mv androidcc-4.9 google
       working-directory: kernel_root
     
     - name: Apply KernelSU Next SUSFS patch
       run: |
-         cp -af ksu/*
-         patch -p1 < sus2.patch
+         cp -f -R ksu/* $(pwd)
+         patch -p1 < $(pwd)/sus2.patch
       
 
       
