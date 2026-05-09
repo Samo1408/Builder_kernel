@@ -86,14 +86,14 @@ jobs:
         python3 copy_repo.py -c copy_repo.json --force
         python3 copy_repo.py -c copy_repo_2.json --force
         #git clone https://github.com/KernelSU-Next/KernelSU-Next.git -b legacy
-        #cd KernelSU-Next
+        cd KernelSU-Next
         ls
         # شوف انت فين دلوقتي
         pwd
-        patch -p1 < sus2.patch || true cd ..
+        patch -p1 < p.patch || true cd ..
         ln -sf ../../KernelSU-Next/kernel kernelsu
-        #cd ..
-        
+        cd ..
+        pwd
           
           
         bash $(pwd)/build.sh kernel --jobs $(nproc --all) `echo $DEFCONFIG`
