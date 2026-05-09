@@ -63,11 +63,7 @@ jobs:
       working-directory: kernel_root
     
 
-    - name: Symlink from workspace root
-      run: |
-          python3 symlink.py -t KernelSU-Next/kernel -l kernel_root/drivers/kernelsu --force
-      working-directory: ${{ github.workspace }})
-      
+    
     - name: Build kernel
       id: buildKernel
       run: |
