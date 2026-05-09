@@ -157,14 +157,11 @@ fi
 
     echo "[+] Setting up KernelSU-Next..."
     
-    cd "$DRIVER_DIR"
-    ln -sf "$(realpath --relative-to="$DRIVER_DIR" "$(pwd)/KernelSU-Next/kernel")" "kernelsu" && echo "[+] Symlink created."
+    cd drivers
+    ln -sf "$(realpath --relative-to="$(pwd)/drivers" "$(pwd)/KernelSU-Next/kernel")" "kernelsu" && echo "[+] Symlink created."
 
     # Add entries in Makefile and Kconfig if not already existing
-    grep -q "kernelsu" "$DRIVER_MAKEFILE" || printf "\nobj-\$(CONFIG_KSU) += kernelsu/\n" >> "$DRIVER_MAKEFILE" && echo "[+] Modified Makefile."
-    grep -q "source \"drivers/kernelsu/Kconfig\"" "$DRIVER_KCONFIG" || sed -i "/endmenu/i\source \"drivers/kernelsu/Kconfig\"" "$DRIVER_KCONFIG" && echo "[+] Modified Kconfig."
-    echo '[+] Done.'
-
+    
 
 BUILD_TARGET="$1"
 FIRST_JOB="$2"
