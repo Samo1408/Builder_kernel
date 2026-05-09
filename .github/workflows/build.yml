@@ -89,8 +89,8 @@ jobs:
         cd ..
           #rm -f kernel_root/fs/exec.c kernel_root/fs/open.c kernel_root/fs/read_write.c kernel_root/fs/stat.c kernel_root/kernel/reboot.c
           #aria2c https://raw.githubusercontent.com/Samo1408/Builder_kernel/32-sus-2.0.0/patch2.patch
-          cp -f ../ksu/fs/ ../fs/
-          cp -f ../ksu/kernel/ ../kernel/
+          cp -f /ksu/fs/ /fs/
+          cp -f /ksu/kernel/ /kernel/
           #aria2c https://raw.githubusercontent.com/Samo1408/kernel_m32/ASB-296/ksu/fs/exec.c
           #aria2c https://raw.githubusercontent.com/Samo1408/kernel_m32/ASB-296/ksu/fs/open.c
           #aria2c https://raw.githubusercontent.com/Samo1408/kernel_m32/ASB-296/ksu/fs/read_write.c
