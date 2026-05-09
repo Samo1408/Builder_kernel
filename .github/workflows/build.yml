@@ -81,7 +81,7 @@ jobs:
         export TARGET_PRODUCT="m32"
         export KERNELSU="${{ github.event.inputs.KSU }}"
         rm -f build.sh
-        aria2c "https://raw.githubusercontent.com/Samo1408/Builder_kernel/build.sh"
+        aria2c https://raw.githubusercontent.com/Samo1408/Builder_kernel/build.sh
         bash $(pwd)/build.sh kernel --jobs $(nproc --all) `echo $DEFCONFIG`
         
         if [[ "${{ github.event.inputs.KSU }}" = "true" ]]; then
