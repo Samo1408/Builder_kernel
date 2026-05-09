@@ -46,7 +46,7 @@ jobs:
         sudo apt update -y
         sudo apt install bc cpio flex bison aptitude git python-is-python3 tar perl wget aria2 curl lz4 -y
         sudo aptitude install libssl-dev -y
-    
+        sudo apt install lld
     - name: Fetch toolchains
       run: |
         mkdir toolchains
