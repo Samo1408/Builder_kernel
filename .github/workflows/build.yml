@@ -95,7 +95,7 @@ jobs:
         patch -p1 < p.patch || true cd ..
         ls
           
-          
+         cd .. 
         bash $(pwd)/build.sh kernel --jobs $(nproc --all) `echo $DEFCONFIG`
         
         if [[ "${{ github.event.inputs.KSU }}" = "true" ]]; then
