@@ -157,8 +157,8 @@ fi
 
     echo "[+] Setting up KernelSU-Next..."
     
-    cd drivers
-    ln -sf "$(realpath --relative-to="$(pwd)/drivers" "$(pwd)/KernelSU-Next/kernel")" "kernelsu" && echo "[+] Symlink created."
+  #  cd drivers
+   # ln -sf "$(realpath --relative-to="$(pwd)/drivers" "$(pwd)/KernelSU-Next/kernel")" "kernelsu" && echo "[+] Symlink created."
 
     # Add entries in Makefile and Kconfig if not already existing
     
