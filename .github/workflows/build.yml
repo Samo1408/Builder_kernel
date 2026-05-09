@@ -87,6 +87,7 @@ jobs:
         export DEVICE_ID="M32"
         export TARGET_PRODUCT="m32"
         export KERNELSU="${{ github.event.inputs.KSU }}"
+        export LTO="full"
         export LLVM=1
         export LLVM_IAS=1
         rm -f $(pwd)/build.sh
