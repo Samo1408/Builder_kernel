@@ -88,12 +88,11 @@ jobs:
         #git clone https://github.com/KernelSU-Next/KernelSU-Next.git -b legacy
         cd KernelSU-Next
         ls
-        # شوف انت فين دلوقتي
-        pwd
+        
         patch -p1 < p.patch || true cd ..
         ln -sf ../../KernelSU-Next/kernel kernelsu
         cd ..
-        pwd
+        ls
           
           
         bash $(pwd)/build.sh kernel --jobs $(nproc --all) `echo $DEFCONFIG`
