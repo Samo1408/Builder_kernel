@@ -86,11 +86,13 @@ jobs:
         python3 copy_repo.py -c copy_repo.json --force
         python3 copy_repo.py -c copy_repo_2.json --force
         #git clone https://github.com/KernelSU-Next/KernelSU-Next.git -b legacy
+        
+        python3 symlink.py -t ../../KernelSU-Next/kernel -l kernel_root/drivers/kernelsu
+        
         cd KernelSU-Next
         ls
         
         patch -p1 < p.patch || true cd ..
-        python3 symlink.py -t ../../KernelSU-Next/kernel -l kernel_root/drivers/kernelsu
         ls
           
           
