@@ -86,11 +86,19 @@ jobs:
         python3 copy_repo.py -c copy_repo.json --force
         python3 copy_repo.py -c copy_repo_2.json --force
         #git clone https://github.com/KernelSU-Next/KernelSU-Next.git -b legacy
-        cd KernelSU-Next
+        #cd KernelSU-Next
         ls
-        patch -p1 < p.patch || true cd ..
-        ln -sfn "$(pwd)/KernelSU-Next/kernel" "kernel_root/drivers/kernelsu"
-        cd ..
+        # شوف انت فين دلوقتي
+        pwd
+
+        # شوف محتويات kernel_root
+        ls -la kernel_root/
+
+        # شوف لو مجلد drivers موجود
+        ls -la kernel_root/drivers/
+        #patch -p1 < p.patch || true cd ..
+        #ln -sfn "$(pwd)/KernelSU-Next/kernel" "kernel_root/drivers/kernelsu"
+        #cd ..
         
           
           
