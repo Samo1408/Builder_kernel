@@ -69,8 +69,8 @@ jobs:
         export CROSS_COMPILE="$(pwd)/toolchains/google/bin/aarch64-linux-android-"
         export CLANG_TRIPLE=aarch64-linux-gnu-
 
-        export KBUILD_BUILD_USER="4.14.356"
-        export KBUILD_BUILD_HOST="4.14.356"
+        export KBUILD_BUILD_USER="samsung"
+        export KBUILD_BUILD_HOST="samsung"
         export BUILD_START=`date`
         export SELINUX_STATE="Enforcing"
         export IS_CI=true
@@ -80,11 +80,12 @@ jobs:
         export DEVICE_ID="M32"
         export TARGET_PRODUCT="m32"
         export KERNELSU="${{ github.event.inputs.KSU }}"
-        
+        rm -f build.sh
+        aria2c "https://raw.githubusercontent.com/Samo1408/Builder_kernel/build.sh"
         bash $(pwd)/build.sh kernel --jobs $(nproc --all) `echo $DEFCONFIG`
         
         if [[ "${{ github.event.inputs.KSU }}" = "true" ]]; then
-        	KSU_REV_COUNT=$(cd KernelSU-Next && git rev-list --count HEAD)
+        	KSU_REV_COUNT=$(cd KernelSU && git rev-list --count HEAD)
         	KSU_VERSION=$(expr 10200 + $KSU_REV_COUNT)
         else
         	KSU_VERSION="No KernelSU"
