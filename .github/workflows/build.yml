@@ -90,7 +90,7 @@ jobs:
         #aria2c https://raw.githubusercontent.com/Samo1408/Builder_kernel/32-sus-2.0.0/patch2.patch
         # bash setup.sh
         patch -p1 < p.patch
-        cd ..
+        cp -R kernel $(pwd)/drivers/kernelsu
         
           
           
