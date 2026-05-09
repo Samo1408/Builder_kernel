@@ -14,7 +14,8 @@
 [ -z $DEFAULT_AK3_REPO ] && DEFAULT_AK3_REPO="https://github.com/Samo141988/AnyKernel3.git"
 [ -z $DEVICE ] && DEVICE="M325FV"
 [ -z $IMAGE ] && IMAGE="$(pwd)/out/arch/arm64/boot/Image"
-
+[ -z $DRIVER_DIR ] && DRIVER_DIR="$(pwd)/drivers"
+[ -z $DRIVER_MAKEFILE ] && DRIVER_MAKEFILE="$(pwd)/drivers/Makefile"
 # special rissu's path. linked to his toolchains
 if [ -d /rsuntk ]; then
 	export CROSS_COMPILE=/rsuntk/toolchains/google/bin/aarch64-linux-android-
@@ -153,6 +154,17 @@ else
 fi
 
 #[ "$KERNELSU" = "true" ] && bash $(pwd)/KernelSU-Next/kernel/setup.sh || pr_info "KernelSU is disabled. Add 'KERNELSU=true' or 'export KERNELSU=true' to enable"
+
+    echo "[+] Setting up KernelSU-Next..."
+    
+    cd "$DRIVER_DIR"
+    ln -sf "$(realpath --relative-to="$DRIVER_DIR" "$(pwd)/KernelSU-Next/kernel")" "kernelsu" && echo "[+] Symlink created."
+
+    # Add entries in Makefile and Kconfig if not already existing
+    grep -q "kernelsu" "$DRIVER_MAKEFILE" || printf "\nobj-\$(CONFIG_KSU) += kernelsu/\n" >> "$DRIVER_MAKEFILE" && echo "[+] Modified Makefile."
+    grep -q "source \"drivers/kernelsu/Kconfig\"" "$DRIVER_KCONFIG" || sed -i "/endmenu/i\source \"drivers/kernelsu/Kconfig\"" "$DRIVER_KCONFIG" && echo "[+] Modified Kconfig."
+    echo '[+] Done.'
+
 
 BUILD_TARGET="$1"
 FIRST_JOB="$2"
