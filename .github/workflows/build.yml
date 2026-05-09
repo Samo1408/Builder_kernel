@@ -81,8 +81,8 @@ jobs:
           export TARGET_PRODUCT="m32"
           export KERNELSU="${{ github.event.inputs.KSU }}"
           export LTO="full"
-          export LLVM=1
-          export LLVM_IAS=1
+          export LLVM=0
+          export LLVM_IAS=0
           # Add fix for ftruncate conflict
           export CFLAGS="-Wno-error"
           # Clean and prepare
