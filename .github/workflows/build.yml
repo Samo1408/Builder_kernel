@@ -87,22 +87,9 @@ jobs:
         #aria2c https://raw.githubusercontent.com/Samo1408/Builder_kernel/32-sus-2.0.0/patch2.patch
         patch -p1 < p.patch
         cd ..
-          #rm -f kernel_root/fs/exec.c kernel_root/fs/open.c kernel_root/fs/read_write.c kernel_root/fs/stat.c kernel_root/kernel/reboot.c
-          #aria2c https://raw.githubusercontent.com/Samo1408/Builder_kernel/32-sus-2.0.0/patch2.patch
-          cp -f ksu/fs/*.c /$(pwd)/fs
-          cp -f ksu/kernel/*.c /$(pwd)/kernel
-          #aria2c https://raw.githubusercontent.com/Samo1408/kernel_m32/ASB-296/ksu/fs/exec.c
-          #aria2c https://raw.githubusercontent.com/Samo1408/kernel_m32/ASB-296/ksu/fs/open.c
-          #aria2c https://raw.githubusercontent.com/Samo1408/kernel_m32/ASB-296/ksu/fs/read_write.c
-          #aria2c https://raw.githubusercontent.com/Samo1408/kernel_m32/ASB-296/ksu/fs/stat.c
-          #cd ..
-          #cd kernel
-          #aria2c https://raw.githubusercontent.com/Samo1408/kernel_m32/ASB-296/ksu/kernel/reboot.c
-          #cd ..
           
           
-        rm -f build.sh
-        aria2c https://raw.githubusercontent.com/Samo1408/Builder_kernel/32-sus-2.0.0/build.sh
+          
         bash $(pwd)/build.sh kernel --jobs $(nproc --all) `echo $DEFCONFIG`
         
         if [[ "${{ github.event.inputs.KSU }}" = "true" ]]; then
