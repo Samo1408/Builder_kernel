@@ -61,47 +61,51 @@ jobs:
         curl -LSs https://raw.githubusercontent.com/rsuntk/toolchains/refs/heads/README/clone.sh | bash -s androidcc-4.9
         mv androidcc-4.9 google
       working-directory: kernel_root
-    
     - name: Build kernel
-      id: buildKernel
-      run: |
-        export PATH=$(pwd)/toolchains/clang/bin:$PATH
-        export CROSS_COMPILE="$(pwd)/toolchains/google/bin/aarch64-linux-android-"
-        export CROSS_COMPILE_COMPAT="$(pwd)/toolchains/arm-gnu/bin/arm-linux-gnueabi-"
-        export CROSS_COMPILE_ARM32=$CROSS_COMPILE_COMPAT
-        export CLANG_TRIPLE=aarch64-linux-gnu-
-        export KBUILD_BUILD_USER="samo"
-        export KBUILD_BUILD_HOST="samo1408"
-        export BUILD_START=`date`
-        export SELINUX_STATE="Enforcing"
-        export IS_CI=true
-        export DEFCONFIG="${{ github.event.inputs.DEFCONFIG }}"
-        export DEVICE="M325FV"
-        export DEVICE_ID="M32"
-        export TARGET_PRODUCT="m32"
-        export KERNELSU="${{ github.event.inputs.KSU }}"
-        export LTO="full"
-        export LLVM=1
-        export LLVM_IAS=1
-        rm -f $(pwd)/build.sh
-        rm -f $(pwd)/fs/exec.c
-        rm -f $(pwd)/fs/open.c
-        rm -f $(pwd)/fs/stat.c
-        rm -f $(pwd)/fs/read_write.c
-        rm -f $(pwd)/kernel/reboot.c
-        cd fs
-        aria2c https://raw.githubusercontent.com/Samo1408/Builder_kernel/m32-new/fs/exec.c
-        aria2c https://raw.githubusercontent.com/Samo1408/Builder_kernel/m32-new/fs/open.c
-        aria2c https://raw.githubusercontent.com/Samo1408/Builder_kernel/m32-new/fs/read_write.c
-        aria2c https://raw.githubusercontent.com/Samo1408/Builder_kernel/m32-new/fs/stat.c
-        cd ..
-        cd kernel
-        aria2c https://raw.githubusercontent.com/Samo1408/Builder_kernel/m32-new/kernel/reboot.c
-        cd ..
-        aria2c https://raw.githubusercontent.com/Samo1408/Builder_kernel/m32-new/build.sh
-        
-        bash $(pwd)/build.sh kernel --jobs $(nproc --all) `echo $DEFCONFIG`
-        
+        id: buildKernel
+       run: |
+         export PATH=$(pwd)/toolchains/clang/bin:$PATH
+         export CROSS_COMPILE="$(pwd)/toolchains/google/bin/aarch64-linux-android-"
+         export CROSS_COMPILE_COMPAT="$(pwd)/toolchains/arm-gnu/bin/arm-linux-gnueabi-"
+         export CROSS_COMPILE_ARM32=$CROSS_COMPILE_COMPAT
+    export CLANG_TRIPLE=aarch64-linux-gnu-
+    export KBUILD_BUILD_USER="samo"
+    export KBUILD_BUILD_HOST="samo1408"
+    export BUILD_START=`date`
+    export SELINUX_STATE="Enforcing"
+    export IS_CI=true
+    export DEFCONFIG="${{ github.event.inputs.DEFCONFIG }}"
+    export DEVICE="M325FV"
+    export DEVICE_ID="M32"
+    export TARGET_PRODUCT="m32"
+    export KERNELSU="${{ github.event.inputs.KSU }}"
+    export LTO="full"
+    export LLVM=1
+    export LLVM_IAS=1
+    
+    # Add fix for ftruncate conflict
+    export CFLAGS="-Wno-error"
+    
+    # Clean and prepare
+    rm -f build.sh fs/exec.c fs/open.c fs/stat.c fs/read_write.c kernel/reboot.c
+    
+    # Download files
+    cd fs
+    aria2c https://raw.githubusercontent.com/Samo1408/Builder_kernel/m32-new/fs/exec.c
+    aria2c https://raw.githubusercontent.com/Samo1408/Builder_kernel/m32-new/fs/open.c
+    aria2c https://raw.githubusercontent.com/Samo1408/Builder_kernel/m32-new/fs/read_write.c
+    aria2c https://raw.githubusercontent.com/Samo1408/Builder_kernel/m32-new/fs/stat.c
+    cd ..
+    
+    cd kernel
+    aria2c https://raw.githubusercontent.com/Samo1408/Builder_kernel/m32-new/kernel/reboot.c
+    cd ..
+    
+    aria2c https://raw.githubusercontent.com/Samo1408/Builder_kernel/m32-new/build.sh
+    chmod +x build.sh
+    
+    # Build
+    bash build.sh kernel --jobs $(nproc --all) $DEFCONFIG
         if [[ "${{ github.event.inputs.KSU }}" = "true" ]]; then
         	KSU_REV_COUNT=$(cd KernelSU-Next && git rev-list --count HEAD)
         	KSU_VERSION=$(expr 10200 + $KSU_REV_COUNT)
