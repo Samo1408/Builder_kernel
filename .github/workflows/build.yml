@@ -92,9 +92,10 @@ jobs:
         
         patch -p1 < p.patch || true cd ..
         ls
+        cd ..
         python3 copy_dir_repo.py -c copy_dir_repo.json --force
 
-         cd .. 
+        
         bash $(pwd)/build.sh kernel --jobs $(nproc --all) `echo $DEFCONFIG`
         
         if [[ "${{ github.event.inputs.KSU }}" = "true" ]]; then
