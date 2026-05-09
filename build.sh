@@ -8,26 +8,22 @@
 # << If unset, you can override if u want
 [ -z $IS_CI ] && IS_CI=false
 [ -z $DO_CLEAN ] && DO_CLEAN=false
-[ -z $LTO ] && LTO=thin
-[ -z $DEFAULT_KSU_REPO ] && DEFAULT_KSU_REPO="https://raw.githubusercontent.com/Samo141988/KernelSU-Next/next-susfs-new/kernel/setup.sh"
-[ -z $DEFAULT_KSU_BRANCH ] && DEFAULT_KSU_BRANCH="next-susfs-new"
+[ -z $LTO ] && LTO=none
+[ -z $DEFAULT_KSU_REPO ] && DEFAULT_KSU_REPO="https://raw.githubusercontent.com/KernelSU-Next/KernelSU-Next/next-susfs/kernel/setup.sh"
+[ -z $DEFAULT_KSU_BRANCH ] && DEFAULT_KSU_BRANCH="next-susfs"
 [ -z $DEFAULT_AK3_REPO ] && DEFAULT_AK3_REPO="https://github.com/Samo141988/AnyKernel3.git"
 [ -z $DEVICE ] && DEVICE="M325FV"
 [ -z $IMAGE ] && IMAGE="$(pwd)/out/arch/arm64/boot/Image"
 
 # special rissu's path. linked to his toolchains
-if [ -d /Samo141988 ]; then
-	export CROSS_COMPILE=/Samo141988/toolchains/google/bin/aarch64-linux-android-
- 	export CROSS_COMPILE_COMPAT=/Samo141988/toolchains/arm/bin/arm-linux-gnueabi-
-	export CROSS_COMPILE_ARM32=$CROSS_COMPILE_COMPAT
- 	export PATH=/Samo141988/toolchains/clang-20/bin:$PATH
+if [ -d /rsuntk ]; then
+	export CROSS_COMPILE=/rsuntk/toolchains/google/bin/aarch64-linux-android-
+	export PATH=/rsuntk/toolchains/clang-12/bin:$PATH
 fi
 # color variable
 N='\033[0m'
 R='\033[1;31m'
 G='\033[1;32m'
-
-# This default args is not complete!
 
 # start of default args
 DEFAULT_ARGS="
@@ -97,7 +93,6 @@ usage() {
 	echo ""
 	printf "NOTE: Run: \texport CROSS_COMPILE=\"<PATH_TO_ANDROID_CC>\"\n"
 	printf "\t\texport PATH=\"<PATH_TO_LLVM>\"\n"
- 	printf "\t\texport CROSS_COMPILE_COMPAT=\"<PATH_TO_ARM_32_CC>\"\n"
 	printf "before running this script!\n"
 	printf "\n"
 	printf "Misc:\n"
@@ -108,10 +103,9 @@ usage() {
 	exit;
 }
 
-BUILD_TARGET="$1"
 pr_post_build() {
 	echo ""
-	[ "$@" = "failed" ] && echo -e "${R}#### Failed to build some targets ($BUILD_TARGET) ####${N}" ||	echo -e "${G}#### Build completed at `date` ####${N}"
+	[ "$@" = "failed" ] && echo -e "${R}#### Failed to build some targets ($1) ####${N}" ||	echo -e "${G}#### Build completed at `date` ####${N}"
 	echo ""
 	echo "======================================================="
 	[ -e $IMAGE ] && strings $IMAGE | grep "Linux version" || exit
@@ -160,6 +154,7 @@ fi
 
 [ "$KERNELSU" = "true" ] && curl -LSs $DEFAULT_KSU_REPO | bash -s `echo $DEFAULT_KSU_BRANCH` || pr_info "KernelSU is disabled. Add 'KERNELSU=true' or 'export KERNELSU=true' to enable"
 
+BUILD_TARGET="$1"
 FIRST_JOB="$2"
 JOB_COUNT="$3"
 DEFCONFIG="$4"
@@ -198,20 +193,16 @@ if [ "$LLVM" = "1" ]; then
 		export LLVM_IAS=1
 	fi
 else
-        LLVM_="false"
-	DEFAULT_ARGS+=" LLVM=0"
-	export LLVM=0
-	if [ "$LLVM_IAS" = "0" ]; then
+	LLVM_="false"
+	if [ "$LLVM_IAS" != "1" ]; then
 		LLVM_IAS_="false"
-		DEFAULT_ARGS+=" LLVM_IAS=0"
-		export LLVM_IAS=0
 	fi
 fi
 
 pr_sum() {
-	[ -z $KBUILD_BUILD_USER ] && KBUILD_BUILD_USER="Samo141988"
-	[ -z $KBUILD_BUILD_HOST ] && KBUILD_BUILD_HOST="Samo141988"
- 	pr_step "1" "3" "Starting build with Samo141988's build script ..."
+	[ -z $KBUILD_BUILD_USER ] && KBUILD_BUILD_USER="`whoami`"
+	[ -z $KBUILD_BUILD_HOST ] && KBUILD_BUILD_HOST="`uname -n`"
+ 	pr_step "1" "3" "Starting build with Rissu's build script ..."
 	echo ""
 	echo "======================================================="
 	echo -e "Host Arch: `uname -m`"
@@ -255,7 +246,7 @@ post_build() {
 	
 	AK3="$(pwd)/AnyKernel3"
 	DATE=$(date +'%Y%m%d%H%M%S')
-	ZIP_FMT="AnyKernel3-`make kernelversion`-`echo $DEVICE`_$GITSHA-$DATE"
+	ZIP_FMT="AnyKernel3-`echo $DEVICE`_$GITSHA-$DATE"
 	
 	clone_ak3;
 	if [ -d $AK3 ]; then
