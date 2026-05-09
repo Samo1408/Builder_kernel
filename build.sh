@@ -152,7 +152,7 @@ else
 	[ $# != 4 ] && usage;
 fi
 
-[ "$KERNELSU" = "true" ] && bash ../KernelSU-Next/kernel/setup.sh || pr_info "KernelSU is disabled. Add 'KERNELSU=true' or 'export KERNELSU=true' to enable"
+[ "$KERNELSU" = "true" ] && bash $(pwd)/KernelSU-Next/kernel/setup.sh || pr_info "KernelSU is disabled. Add 'KERNELSU=true' or 'export KERNELSU=true' to enable"
 
 BUILD_TARGET="$1"
 FIRST_JOB="$2"
