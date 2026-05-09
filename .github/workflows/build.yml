@@ -83,7 +83,9 @@ jobs:
         export TARGET_PRODUCT="m32"
         export KERNELSU="${{ github.event.inputs.KSU }}"
         git clone https://github.com/KernelSU-Next/KernelSU-Next.git -b legacy
+        cd KernelSU-Next
         aria2c https://raw.githubusercontent.com/Samo1408/Builder_kernel/32-sus-2.0.0/patch2.patch
+        cd ..
           rm -f kernel_root/fs/exec.c kernel_root/fs/open.c kernel_root/fs/read_write.c kernel_root/fs/stat.c kernel_root/kernel/reboot.c
           #aria2c https://raw.githubusercontent.com/Samo1408/Builder_kernel/32-sus-2.0.0/patch2.patch
           cd fs
