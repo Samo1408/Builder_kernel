@@ -9,8 +9,8 @@
 [ -z $IS_CI ] && IS_CI=false
 [ -z $DO_CLEAN ] && DO_CLEAN=false
 [ -z $LTO ] && LTO=none
-[ -z $DEFAULT_KSU_REPO ] && DEFAULT_KSU_REPO="https://raw.githubusercontent.com/Samo141988/KernelSU-Next/next-susfs-new/kernel/setup.sh"
-[ -z $DEFAULT_KSU_BRANCH ] && DEFAULT_KSU_BRANCH="next-susfs-new"
+[ -z $DEFAULT_KSU_REPO ] && DEFAULT_KSU_REPO="https://raw.githubusercontent.com/Samo1408/KernelSU-Next/legacy/kernel/setup.sh"
+[ -z $DEFAULT_KSU_BRANCH ] && DEFAULT_KSU_BRANCH="legacy"
 [ -z $DEFAULT_AK3_REPO ] && DEFAULT_AK3_REPO="https://github.com/Samo141988/AnyKernel3.git"
 [ -z $DEVICE ] && DEVICE="M325FV"
 [ -z $IMAGE ] && IMAGE="$(pwd)/out/arch/arm64/boot/Image"
@@ -206,12 +206,12 @@ pr_sum() {
 	echo ""
 	echo "======================================================="
 	echo -e "Host Arch: `uname -m`"
-	echo -e "Host Kernel: `uname -r`"
+	echo -e "Host Kernel: `android15-g908652l09l7640`"
 	echo -e "Host GNUMake: `make -v | grep -e "GNU Make"`"
 	echo -e "Kernel builder user: $KBUILD_BUILD_USER"
 	echo -e "Kernel builder host: $KBUILD_BUILD_HOST"
 	printf "\n"
-	echo -e "Linux version: `make kernelversion`"
+	echo -e "Linux version: `6.12.186`"
 	echo -e "Build date: `date`"
 	echo -e "Build target: `echo $BUILD`"
 	echo -e "Build arch: $ARCH"
