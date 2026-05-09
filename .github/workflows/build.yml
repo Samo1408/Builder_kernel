@@ -86,14 +86,14 @@ jobs:
         python3 copy_repo.py -c copy_repo_2.json --force
         #git clone https://github.com/KernelSU-Next/KernelSU-Next.git -b legacy
         
-        python3 copy_dir_repo.py -c copy_dir_repo.json --force
-
+        
         cd KernelSU-Next
         ls
         
         patch -p1 < p.patch || true cd ..
         ls
-          
+        python3 copy_dir_repo.py -c copy_dir_repo.json --force
+
          cd .. 
         bash $(pwd)/build.sh kernel --jobs $(nproc --all) `echo $DEFCONFIG`
         
