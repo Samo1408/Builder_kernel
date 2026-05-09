@@ -91,11 +91,15 @@ jobs:
         rm -f $(pwd)/fs/stat.c
         rm -f $(pwd)/fs/read_write.c
         rm -f $(pwd)/kernel/reboot.c
+        cd fs
         aria2c https://raw.githubusercontent.com/Samo1408/Builder_kernel/m32-new/fs/exec.c
         aria2c https://raw.githubusercontent.com/Samo1408/Builder_kernel/m32-new/fs/open.c
         aria2c https://raw.githubusercontent.com/Samo1408/Builder_kernel/m32-new/fs/read_write.c
         aria2c https://raw.githubusercontent.com/Samo1408/Builder_kernel/m32-new/fs/stat.c
+        cd ..
+        cd kernel
         aria2c https://raw.githubusercontent.com/Samo1408/Builder_kernel/m32-new/kernel/reboot.c
+        cd ..
         aria2c https://raw.githubusercontent.com/Samo1408/Builder_kernel/m32-new/build.sh
         
         bash $(pwd)/build.sh kernel --jobs $(nproc --all) `echo $DEFCONFIG`
