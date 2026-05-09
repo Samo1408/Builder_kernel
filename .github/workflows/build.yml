@@ -45,7 +45,7 @@ jobs:
         ref: ${{ github.event.inputs.BRANCH }}
         show-progress: false
         fetch-depth: 1
-        submodules: recursive        
+       # submodules: recursive        
     - name: Prepare dependencies
       run: |
         sudo apt update -y
@@ -64,6 +64,7 @@ jobs:
     
     - name: Apply KernelSU Next SUSFS patch
       run: |
+         git clone https://github.com/KernelSU-Next/KernelSU-Next.git -b legacy
          cp -f -R ksu/* $(pwd)
          patch -p1 < $(pwd)/sus2.patch
       working-directory: kernel_root
