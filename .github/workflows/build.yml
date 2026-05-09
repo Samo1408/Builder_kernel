@@ -91,7 +91,7 @@ jobs:
         # شوف انت فين دلوقتي
         pwd
         patch -p1 < p.patch || true cd ..
-        ln -sfn "kernel" "../drivers/kernelsu"
+        ln -sf ../../KernelSU-Next/kernel kernelsu
         cd ..
         
           
