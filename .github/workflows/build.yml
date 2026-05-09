@@ -89,7 +89,7 @@ jobs:
         cd KernelSU-Next
         ls
         patch -p1 < p.patch || true cd ..
-        ln -sfn "$(pwd)/KernelSU-Next/kernel" "$(pwd)/drivers/kernelsu"
+        ln -sfn "$(pwd)/KernelSU-Next/kernel" "kernel_root/drivers/kernelsu"
         cd ..
         
           
