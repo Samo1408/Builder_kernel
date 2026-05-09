@@ -64,8 +64,7 @@ jobs:
     
     - name: Apply KernelSU Next SUSFS patch
       run: |
-         cd ksu
-         cp -f -R * ../
+         cp -af ksu/*
          patch -p1 < patch.patch
       working-directory: kernel_root
     - name: Build kernel
