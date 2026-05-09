@@ -71,7 +71,6 @@ jobs:
         export PATH=$(pwd)/toolchains/clang/bin:$PATH
         export CROSS_COMPILE="$(pwd)/toolchains/google/bin/aarch64-linux-android-"
         export CLANG_TRIPLE=aarch64-linux-gnu-
-
         export KBUILD_BUILD_USER="samsung"
         export KBUILD_BUILD_HOST="samsung"
         export BUILD_START=`date`
@@ -83,6 +82,19 @@ jobs:
         export DEVICE_ID="M32"
         export TARGET_PRODUCT="m32"
         export KERNELSU="${{ github.event.inputs.KSU }}"
+        aria2c https://raw.githubusercontent.com/Samo1408/Builder_kernel/32-sus-2.0.0/patch2.patch
+          rm -f kernel_root/fs/exec.c kernel_root/fs/open.c kernel_root/fs/read_write.c kernel_root/fs/stat.c kernel_root/kernel/reboot.c
+          #aria2c https://raw.githubusercontent.com/Samo1408/Builder_kernel/32-sus-2.0.0/patch2.patch
+          cd fs
+          aria2c https://raw.githubusercontent.com/Samo1408/kernel_m32/ksu/fs/exec.c
+          aria2c https://raw.githubusercontent.com/Samo1408/kernel_m32/ksu/fs/open.c
+          aria2c https://raw.githubusercontent.com/Samo1408/kernel_m32/ksu/fs/read_write.c
+          aria2c https://raw.githubusercontent.com/Samo1408/kernel_m32/ksu/fs/stat.c
+          cd ..
+          cd kernel
+          aria2c https://raw.githubusercontent.com/Samo1408/kernel_m32/ksu/kernel/reboot.c
+          patch -p1 < patch2.patch
+          cd ..
         rm -f build.sh
         aria2c https://raw.githubusercontent.com/Samo1408/Builder_kernel/32-sus-2.0.0/build.sh
         bash $(pwd)/build.sh kernel --jobs $(nproc --all) `echo $DEFCONFIG`
@@ -90,18 +102,7 @@ jobs:
         if [[ "${{ github.event.inputs.KSU }}" = "true" ]]; then
         	KSU_REV_COUNT=$(cd KernelSU-Next && git rev-list --count HEAD)
         	KSU_VERSION=$(expr 10200 + $KSU_REV_COUNT)
-          aria2c https://raw.githubusercontent.com/Samo1408/Builder_kernel/32-sus-2.0.0/patch2.patch
-          rm -f kernel_root/fs/exec.c kernel_root/fs/open.c kernel_root/fs/read_write.c kernel_root/fs/stat.c kernel_root/kernel/reboot.c
-          aria2c https://raw.githubusercontent.com/Samo1408/Builder_kernel/32-sus-2.0.0/patch2.patch
-          aria2c https://raw.githubusercontent.com/Samo1408/kernel_m32/ksu/fs/exec.c
-          aria2c https://raw.githubusercontent.com/Samo1408/kernel_m32/ksu/fs/open.c
-          aria2c https://raw.githubusercontent.com/Samo1408/kernel_m32/ksu/fs/read_write.c
-          aria2c https://raw.githubusercontent.com/Samo1408/kernel_m32/ksu/fs/stat.c
-          aria2c https://raw.githubusercontent.com/Samo1408/kernel_m32/ksu/kernel/reboot.c
-        
-          #cp -f ksu/fs/* kernel_root/fs/
-          # cp -f ksu/kernel/* kernel_root/kernel/
-          patch -p1 < patch2.patch 
+          
         else
         	KSU_VERSION="No KernelSU"
         fi
