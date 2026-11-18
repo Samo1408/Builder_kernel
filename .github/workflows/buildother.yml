@@ -67,7 +67,7 @@ jobs:
         working-directory: kernel_root
         shell: bash
         run: |
-          
+          set -euo pipefail
           mkdir -p toolchains
           cd toolchains
 
@@ -94,7 +94,7 @@ jobs:
             bash -s -- arm-gnu
 
           test -x clang/bin/clang
-          test -x google/bin/aarch64-linux-android-gcc
+          test -x androidcc-4.9/bin/aarch64-linux-android-gcc
           test -x arm-gnu/bin/arm-linux-gnueabi-gcc
 
       - name: Build kernel
@@ -115,7 +115,7 @@ jobs:
           set -euo pipefail
 
           export PATH="$(pwd)/toolchains/clang/bin:$PATH"
-          export CROSS_COMPILE="$(pwd)/toolchains/google/bin/aarch64-linux-android-"
+          export CROSS_COMPILE="$(pwd)/toolchains/androidcc-4.9/bin/aarch64-linux-android-"
           export CROSS_COMPILE_COMPAT="$(pwd)/toolchains/arm-gnu/bin/arm-linux-gnueabi-"
           export CROSS_COMPILE_ARM32="$CROSS_COMPILE_COMPAT"
           export CLANG_TRIPLE=aarch64-linux-gnu-
