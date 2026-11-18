@@ -112,13 +112,13 @@ jobs:
           bash ./build.sh kernel --jobs "$(nproc --all)" "$DEFCONFIG"
 
           if [[ "$KERNELSU" == "true" ]]; then
-            test -d KernelSU/.git
-            KSU_REV_COUNT="$(git -C KernelSU rev-list --count HEAD)"
+            test -d FinaSU/.git
+            KSU_REV_COUNT="$(git -C FinaSU rev-list --count HEAD)"
             KSU_VERSION="$((10200 + KSU_REV_COUNT))"
           else
             KSU_VERSION="Disabled"
           fi
-          echo "- OriginSU version: $KSU_VERSION"
+          echo "- FinaSU version: $KSU_VERSION"
 
           if [[ -f include/linux/susfs.h ]]; then
             SUSFS_VERSION="$(grep -E '^#define SUSFS_VERSION' include/linux/susfs.h | awk '{print $3}' | tr -d '"')"
@@ -137,7 +137,7 @@ jobs:
           Defconfig: ${DEFCONFIG}
           OriginSU: ${KSU_VERSION}
           Susfs: ${SUSFS_VERSION}
-          LTO: off
+          LTO: thin
           SELinux: ${SELINUX_STATE}
           EOF
 
