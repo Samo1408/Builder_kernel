@@ -54,8 +54,7 @@ jobs:
           ref: ${{ inputs.BRANCH }}
           show-progress: false
           fetch-depth: 1
-          # OriginSU is installed by build.sh only when KSU=true.
-          submodules: true
+          
 
       - name: Prepare dependencies
         run: |
