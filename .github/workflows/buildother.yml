@@ -10,7 +10,7 @@ on:
         type: string
       DEFCONFIG:
         description: Defconfig
-        default: 'm32_defconfig'
+        default: 'rsuntk_defconfig'
         required: false
         type: string
       KSU:
@@ -120,12 +120,12 @@ jobs:
           
           bash ./build.sh kernel --jobs "$(nproc --all)" "$DEFCONFIG"
 
-          if [[ "${{ github.event.inputs.KSU }}" = "true" ]]; then
-          	KSU_REV_COUNT=$(cd FinaSU && git rev-list --count HEAD)
-          KSU_VERSION=$(expr 10200 + $KSU_REV_COUNT)
-          else
-          KSU_VERSION="No KernelSU"
-          fi
+           # if [[ "${{ github.event.inputs.KSU }}" = "true" ]]; then
+           KSU_REV_COUNT=$(cd FinaSU && git rev-list --count HEAD)
+           KSU_VERSION=$(expr 10200 + $KSU_REV_COUNT)
+           # else
+           # KSU_VERSION="No KernelSU"
+           #fi
            echo "- KernelSU version: $KSU_VERSION"
         
 
@@ -135,7 +135,7 @@ jobs:
             SUSFS_VERSION="Not available"
           fi
 
-          test -x ./getutsrel
+          #test -x ./getutsrel
           LOCALVERSION="$(./getutsrel)"
           CLANG_VERSION="$(clang -v 2>&1 | grep ' version ' | sed 's/[[:space:]]*$//' | head -n1)"
 
@@ -144,7 +144,7 @@ jobs:
           Clang version: ${CLANG_VERSION}
           Build date: ${BUILD_START}
           Defconfig: ${DEFCONFIG}
-          OriginSU: ${KSU_VERSION}
+          FinaSU: ${KSU_VERSION}
           Susfs: ${SUSFS_VERSION}
           LTO: thin
           SELinux: ${SELINUX_STATE}
