@@ -10,11 +10,11 @@ on:
         type: string
       DEFCONFIG:
         description: Defconfig
-        default: 'rsuntk_defconfig'
+        default: 'm32_defconfig'
         required: false
         type: string
       KSU:
-        description: Add OriginSU support
+        description: Add FinaSU support
         type: boolean
         default: false
         required: false
@@ -112,7 +112,7 @@ jobs:
           bash ./build.sh kernel --jobs "$(nproc --all)" "$DEFCONFIG"
 
           if [[ "$KERNELSU" == "true" ]]; then
-            test -d FinaSU/.git
+           
             KSU_REV_COUNT="$(git -C FinaSU rev-list --count HEAD)"
             KSU_VERSION="$((10200 + KSU_REV_COUNT))"
           else
