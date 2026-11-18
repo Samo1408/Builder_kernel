@@ -108,17 +108,17 @@ jobs:
           SELINUX_STATE="Enforcing"
 
           echo "KERNELSU=$KERNELSU"
-          bash ./daily.sh
+          
           bash ./build.sh kernel --jobs "$(nproc --all)" "$DEFCONFIG"
 
-          if [[ "$KERNELSU" == "true" ]]; then
-           
-            KSU_REV_COUNT="$(git -C FinaSU rev-list --count HEAD)"
-            KSU_VERSION="$((10200 + KSU_REV_COUNT))"
+          if [[ "${{ github.event.inputs.KSU }}" = "true" ]]; then
+          	KSU_REV_COUNT=$(cd FinaSU && git rev-list --count HEAD)
+          KSU_VERSION=$(expr 10200 + $KSU_REV_COUNT)
           else
-            KSU_VERSION="Disabled"
+          KSU_VERSION="No KernelSU"
           fi
-          echo "- FinaSU version: $KSU_VERSION"
+           echo "- KernelSU version: $KSU_VERSION"
+        
 
           if [[ -f include/linux/susfs.h ]]; then
             SUSFS_VERSION="$(grep -E '^#define SUSFS_VERSION' include/linux/susfs.h | awk '{print $3}' | tr -d '"')"
