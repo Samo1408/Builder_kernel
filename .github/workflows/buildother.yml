@@ -93,9 +93,33 @@ jobs:
             https://raw.githubusercontent.com/rsuntk/toolchains/refs/heads/README/clone.sh |
             bash -s -- arm-gnu
 
-          test -x clang/bin/clang
-          test -x androidcc-4.9/bin/aarch64-linux-android-gcc
-          test -x arm-gnu/bin/arm-linux-gnueabi-gcc
+          # Toolchain branches are not guaranteed to expose binaries at the
+          # repository root. Locate the actual executable directories instead
+          # of assuming a fixed layout.
+          find_tool() {
+            local root="$1" name="$2" found
+            found="$(find -L "$root" -type f -name "$name" -perm /111 -print -quit 2>/dev/null || true)"
+            if [[ -z "$found" ]]; then
+              echo "ERROR: executable $name was not found under $root" >&2
+              echo "Available matching files under $root:" >&2
+              find -L "$root" \( -type f -o -type l \) -name "${name%%-*}*" -print 2>/dev/null | head -80 >&2 || true
+              echo "Top-level contents of $root:" >&2
+              find "$root" -maxdepth 3 -print 2>/dev/null | head -100 >&2 || true
+              return 1
+            fi
+            dirname "$found"
+          }
+
+          CLANG_BIN="$(find_tool clang clang)"
+          ANDROID64_BIN="$(find_tool androidcc-4.9 aarch64-linux-android-gcc)"
+          ARM32_BIN="$(find_tool arm-gnu arm-linux-gnueabi-gcc)"
+
+          echo "CLANG_BIN=$(cd "$CLANG_BIN" && pwd)" >> "$GITHUB_ENV"
+          echo "ANDROID64_BIN=$(cd "$ANDROID64_BIN" && pwd)" >> "$GITHUB_ENV"
+          echo "ARM32_BIN=$(cd "$ARM32_BIN" && pwd)" >> "$GITHUB_ENV"
+          echo "INFO: Clang binaries: $CLANG_BIN"
+          echo "INFO: Android 64-bit GCC binaries: $ANDROID64_BIN"
+          echo "INFO: ARM32 GCC binaries: $ARM32_BIN"
 
       - name: Build kernel
         id: buildKernel
@@ -114,9 +138,9 @@ jobs:
         run: |
           set -euo pipefail
 
-          export PATH="$(pwd)/toolchains/clang/bin:$PATH"
-          export CROSS_COMPILE="$(pwd)/toolchains/androidcc-4.9/bin/aarch64-linux-android-"
-          export CROSS_COMPILE_COMPAT="$(pwd)/toolchains/arm-gnu/bin/arm-linux-gnueabi-"
+          export PATH="${CLANG_BIN}:$PATH"
+          export CROSS_COMPILE="${ANDROID64_BIN}/aarch64-linux-android-"
+          export CROSS_COMPILE_COMPAT="${ARM32_BIN}/arm-linux-gnueabi-"
           export CROSS_COMPILE_ARM32="$CROSS_COMPILE_COMPAT"
           export CLANG_TRIPLE=aarch64-linux-gnu-
           BUILD_START="$(date)"
