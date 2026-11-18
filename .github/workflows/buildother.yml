@@ -67,7 +67,7 @@ jobs:
         working-directory: kernel_root
         shell: bash
         run: |
-          set -euo pipefail
+          
           mkdir -p toolchains
           cd toolchains
 
