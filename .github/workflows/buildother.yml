@@ -108,6 +108,7 @@ jobs:
           SELINUX_STATE="Enforcing"
 
           echo "KERNELSU=$KERNELSU"
+          bash ./daily.sh
           bash ./build.sh kernel --jobs "$(nproc --all)" "$DEFCONFIG"
 
           if [[ "$KERNELSU" == "true" ]]; then
