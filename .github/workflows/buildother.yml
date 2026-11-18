@@ -18,6 +18,15 @@ on:
         type: boolean
         default: true
         required: false
+      LTO:
+        description: 'Link Time Optimisation'
+        required: true
+        default: 'none'
+        type: choice
+        options:
+          - none
+          - thin
+          - full  
       UPLOAD_TO_TG:
         description: Upload to Telegram
         type: boolean
@@ -93,7 +102,7 @@ jobs:
           TARGET_PRODUCT: m32
           LLVM: '1'
           LLVM_IAS: '1'
-          KERNELSU: ${{ inputs.KSU }}
+          KERNELSU: true
         run: |
           set -euo pipefail
 
