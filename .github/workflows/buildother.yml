@@ -16,7 +16,7 @@ on:
       KSU:
         description: Add FinaSU support
         type: boolean
-        default: false
+        default: true
         required: false
       UPLOAD_TO_TG:
         description: Upload to Telegram
