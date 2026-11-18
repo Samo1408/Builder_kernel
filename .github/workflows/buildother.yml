@@ -55,7 +55,7 @@ jobs:
           show-progress: false
           fetch-depth: 1
           # OriginSU is installed by build.sh only when KSU=true.
-          submodules: false
+          submodules: true
 
       - name: Prepare dependencies
         run: |
